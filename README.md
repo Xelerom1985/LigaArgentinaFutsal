@@ -14,7 +14,11 @@ npm run dev
 npm run build   # genera dist/ (con sw.js y manifest)
 ```
 
-## Publicar (Firebase Hosting, igual que La Pulga)
+## Publicado
+https://liga-argentina-futsal.web.app (Firebase project `liga-argentina-futsal`).
+Para actualizar: `npm run build` + `firebase deploy --only hosting`.
+
+## Publicar desde cero (Firebase Hosting, igual que La Pulga)
 ```bash
 npm install -g firebase-tools
 firebase login
