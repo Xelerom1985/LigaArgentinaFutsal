@@ -1,5 +1,5 @@
-import { grupos, MAPA_LIGA_URL } from '../data/zonas'
-import { Lupa, Mapa, Flecha } from './Iconos'
+import { grupos } from '../data/zonas'
+import { Lupa, Flecha } from './Iconos'
 
 export default function Home({ abrirZona, abrirBuscar }) {
   return (
@@ -44,17 +44,7 @@ export default function Home({ abrirZona, abrirBuscar }) {
           </section>
         ))}
 
-        <a
-          href={MAPA_LIGA_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 rounded-2xl px-4 py-4 bg-celeste text-noche font-bold active:opacity-85"
-        >
-          <Mapa className="w-6 h-6" />
-          <span className="flex-1">Mapa de la liga</span>
-          <Flecha className="w-5 h-5" />
-        </a>
-        <p className="text-white/25 text-xs text-center">Datos: ligaargentina2026.shop</p>
+        <p className="text-white/25 text-xs text-center">Desarrollada por: Fernando Flores</p>
       </div>
     </div>
   )
