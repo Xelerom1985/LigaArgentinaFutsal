@@ -2,12 +2,14 @@
 // Por zona, porque hay clubes con el mismo nombre en zonas distintas (ej. ALUMNI).
 export const escudosPorZona = {
   "elite-a": {
+    "PARQUE DEL REY": "escudos/elite-a--parque-del-rey.webp",
     "LOS CEIBOS": "escudos/elite-a--los-ceibos.webp",
     "BELGRANO": "escudos/elite-a--belgrano.webp",
     "VILLA URQUIZÚ": "escudos/elite-a--villa-urquizu.webp",
     "ALVEAR": "escudos/elite-a--alvear.webp",
     "SOC. ITALIANA": "escudos/elite-a--soc-italiana.webp",
-    "OTAMENDI": "escudos/elite-a--otamendi.webp"
+    "OTAMENDI": "escudos/elite-a--otamendi.webp",
+    "ITUZAINGO": "escudos/elite-a--ituzaingo.webp"
   },
   "elite-b": {
     "LA PERLA TEMP.": "escudos/elite-b--la-perla-temp.webp",
