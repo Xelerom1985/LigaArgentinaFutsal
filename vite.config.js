@@ -12,8 +12,8 @@ export default defineConfig({
       includeAssets: ['favicon.png', 'logo.png', 'icons/apple-touch-icon.png'],
       workbox: { clientsClaim: true, globPatterns: ['**/*.{js,css,html,png,svg,webp,woff2}'] },
       manifest: {
-        name: 'Liga Argentina de Futsal',
-        short_name: 'Liga Futsal',
+        name: 'Liga Argentina',
+        short_name: 'Liga Argentina',
         description: 'Zonas, clubes y ubicaciones de la Liga Argentina de Futsal',
         lang: 'es-AR',
         theme_color: '#0b1f3a',
@@ -25,6 +25,7 @@ export default defineConfig({
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icons/maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
           { src: 'icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       }
