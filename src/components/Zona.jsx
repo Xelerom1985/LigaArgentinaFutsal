@@ -25,7 +25,7 @@ export default function Zona({ zonaId, volver }) {
       <div className="px-3 mt-4 w-full max-w-md mx-auto float-in">
         <div className="rounded-2xl border border-white/10 overflow-hidden divide-y divide-white/5"
           style={{ background: 'rgba(11,31,58,0.92)' }}>
-          {clubes.map(c => <ClubRow key={c} club={c} color={z.grupo.color} />)}
+          {clubes.map(c => <ClubRow key={c} club={c} zonaId={z.id} color={z.grupo.color} />)}
         </div>
         <p className="text-white/25 text-xs text-center mt-3 mb-8">Tocá un club para abrir su ubicación en Google Maps</p>
       </div>

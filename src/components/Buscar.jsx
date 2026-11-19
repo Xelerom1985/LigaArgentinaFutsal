@@ -44,7 +44,7 @@ export default function Buscar({ volver }) {
         <p className="text-white/35 text-xs mb-2 px-1">{res.length} {res.length === 1 ? "club" : "clubes"}</p>
         <div className="rounded-2xl border border-white/10 overflow-hidden divide-y divide-white/5" style={{ background: 'rgba(11,31,58,0.92)' }}>
           {res.map(i => (
-            <ClubRow key={i.club} club={i.club} color={i.zonas[0].grupo.color}
+            <ClubRow key={i.club} club={i.club} zonaId={i.zonas[0].id} color={i.zonas[0].grupo.color}
               extra={i.zonas.map(z => z.nombre).join(' · ')} />
           ))}
           {res.length === 0 && <p className="text-white/40 text-sm text-center py-10">No encontramos ese club</p>}

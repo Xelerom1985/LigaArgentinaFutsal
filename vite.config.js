@@ -10,7 +10,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.png', 'logo.png', 'icons/apple-touch-icon.png'],
-      workbox: { clientsClaim: true, globPatterns: ['**/*.{js,css,html,png,svg,woff2}'] },
+      workbox: { clientsClaim: true, globPatterns: ['**/*.{js,css,html,png,svg,webp,woff2}'] },
       manifest: {
         name: 'Liga Argentina de Futsal',
         short_name: 'Liga Futsal',
