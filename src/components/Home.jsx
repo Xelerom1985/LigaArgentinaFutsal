@@ -1,7 +1,10 @@
 import { grupos } from '../data/zonas'
+import { useClubes } from '../data/clubes'
 import { Lupa, Flecha } from './Iconos'
 
 export default function Home({ abrirZona, abrirBuscar }) {
+  const clubes = useClubes()
+  const cuantos = id => clubes.filter(c => c.zonaId === id).length
   return (
     <div className="flex flex-col items-center px-4 safe-top">
       {/* Logo de la liga — lo primero que se ve */}
@@ -36,7 +39,7 @@ export default function Home({ abrirZona, abrirBuscar }) {
                   <span className="absolute inset-y-0 left-0 w-1" style={{ background: g.color }} />
                   <span className="block font-bold text-[15px] leading-tight">{z.nombre.replace(/^Diamante |^Femenino |^Baby /, '')}</span>
                   <span className="flex items-center justify-between mt-1 text-white/45 text-xs">
-                    {z.clubes.length} clubes <Flecha className="w-4 h-4" />
+                    {cuantos(z.id)} clubes <Flecha className="w-4 h-4" />
                   </span>
                 </button>
               ))}

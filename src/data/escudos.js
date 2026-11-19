@@ -6,6 +6,7 @@ export const escudosPorZona = {
     "LOS CEIBOS": "escudos/elite-a--los-ceibos.webp",
     "BELGRANO": "escudos/elite-a--belgrano.webp",
     "VILLA URQUIZÚ": "escudos/elite-a--villa-urquizu.webp",
+    "SPINOLA": "escudos/elite-a--spinola.webp",
     "ALVEAR": "escudos/elite-a--alvear.webp",
     "SOC. ITALIANA": "escudos/elite-a--soc-italiana.webp",
     "OTAMENDI": "escudos/elite-a--otamendi.webp",

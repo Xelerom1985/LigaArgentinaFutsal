@@ -6,3 +6,7 @@ export const Cruz = (p) => <svg {...base} {...p}><path d="M6 18L18 6M6 6l12 12" 
 export const Flecha = (p) => <svg {...base} {...p}><path d="M9 5l7 7-7 7" /></svg>
 export const Mapa = (p) => <svg {...base} {...p}><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
 export const Compartir = (p) => <svg {...base} {...p}><path d="M12 3v12M7 8l5-5 5 5" /><path d="M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" /></svg>
+export const Candado = (p) => <svg {...base} {...p}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></svg>
+export const CandadoAbierto = (p) => <svg {...base} {...p}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 017.8-1.2" /></svg>
+export const Mas = (p) => <svg {...base} {...p}><path d="M12 5v14M5 12h14" /></svg>
+export const Lapiz = (p) => <svg {...base} {...p}><path d="M15.2 5.2l3.6 3.6M4 20l4-1 11-11a2.5 2.5 0 00-3.6-3.6l-11 11-1 4z" /></svg>

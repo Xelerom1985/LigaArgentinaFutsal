@@ -1,11 +1,13 @@
 import { todasLasZonas } from '../data/zonas'
+import { useClubes } from '../data/clubes'
 import { Atras } from './Iconos'
 import ClubRow from './ClubRow'
 
 export default function Zona({ zonaId, volver }) {
+  const todos = useClubes()
   const z = todasLasZonas.find(x => x.id === zonaId)
   if (!z) return null
-  const clubes = [...z.clubes].sort((a, b) => a.localeCompare(b, 'es'))
+  const clubes = todos.filter(c => c.zonaId === zonaId).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
   return (
     <div className="flex flex-col">
       <header className="sticky top-0 z-20 safe-top" style={{ background: 'rgba(6,20,42,0.88)', backdropFilter: 'blur(10px)' }}>
@@ -25,7 +27,8 @@ export default function Zona({ zonaId, volver }) {
       <div className="px-3 mt-4 w-full max-w-md mx-auto float-in">
         <div className="rounded-2xl border border-white/10 overflow-hidden divide-y divide-white/5"
           style={{ background: 'rgba(11,31,58,0.92)' }}>
-          {clubes.map(c => <ClubRow key={c} club={c} zonaId={z.id} color={z.grupo.color} />)}
+          {clubes.map(c => <ClubRow key={c.id} club={c} color={z.grupo.color} />)}
+          {clubes.length === 0 && <p className="text-white/40 text-sm text-center py-10">Todavía no hay clubes en esta zona</p>}
         </div>
         <p className="text-white/25 text-xs text-center mt-3 mb-8">Tocá un club para abrir su ubicación en Google Maps</p>
       </div>

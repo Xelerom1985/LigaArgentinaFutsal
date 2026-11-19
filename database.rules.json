@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "clubes": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
+      "$id": {
+        ".validate": "newData.hasChildren(['nombre', 'zonaId']) && newData.child('nombre').isString() && newData.child('nombre').val().length > 0 && newData.child('nombre').val().length <= 60"
+      }
+    },
+    "$other": { ".read": false, ".write": false }
+  }
+}

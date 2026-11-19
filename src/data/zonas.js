@@ -70,10 +70,12 @@ export const grupos = [
 
 export const todasLasZonas = grupos.flatMap(g => g.zonas.map(z => ({ ...z, grupo: g })))
 
+// club: { nombre, ubicacion } — ubicacion puede ser un link de Google Maps o una dirección
 export function mapsUrl(club) {
-  const dir = direcciones[club]
-  if (dir) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir + ', Buenos Aires, Argentina')}`
-  const q = encodeURIComponent(`Club ${club} futsal`)
+  const u = (club.ubicacion || '').trim()
+  if (/^https?:\/\//i.test(u)) return u
+  if (u) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(u + ', Buenos Aires, Argentina')}`
+  const q = encodeURIComponent(`Club ${club.nombre} futsal`)
   return `https://www.google.com/maps/search/${q}/@${CENTRO.lat},${CENTRO.lng},12z`
 }
 
