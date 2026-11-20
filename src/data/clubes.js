@@ -16,7 +16,11 @@ export function semilla() {
   return out
 }
 
-const aLista = obj => Object.entries(obj || {}).map(([id, c]) => ({ id, ...c }))
+// Si en la base el club no tiene escudo, usamos el del código (escudos.js):
+// así un escudo nuevo aparece solo con publicar, sin tocar Firebase.
+const aLista = obj => Object.entries(obj || {}).map(([id, c]) => ({
+  id, ...c, escudo: c.escudo || escudoDe(c.nombre, c.zonaId) || '',
+}))
 const CACHE = 'laf_clubes_v1'
 
 function leerCache() {

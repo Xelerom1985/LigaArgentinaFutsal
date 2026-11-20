@@ -152,7 +152,8 @@ export const escudosPorZona = {
     "MISTER CLUB": "escudos/copa-plata--mister-club.webp",
     "EL CICLÓN": "escudos/copa-plata--el-ciclon.webp",
     "SAN MARTIN": "escudos/copa-plata--san-martin.webp",
-    "LOMAS DE BURZACO": "escudos/copa-plata--lomas-de-burzaco.webp"
+    "LOMAS DE BURZACO": "escudos/copa-plata--lomas-de-burzaco.webp",
+    "JUNIOR FUTSAL": "escudos/copa-plata--junior-futsal.webp"
   }
 }
 
