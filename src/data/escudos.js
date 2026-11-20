@@ -99,7 +99,9 @@ export const escudosPorZona = {
     "INMIGRANTES DEL SUD": "escudos/sudoeste-a1--inmigrantes-del-sud.webp",
     "BRISAS DE PRIMAVERA": "escudos/sudoeste-a1--brisas-de-primavera.webp",
     "U.V.V ARGERICH": "escudos/sudoeste-a1--u-v-v-argerich.webp",
-    "ARGENTINO": "escudos/sudoeste-a1--argentino.webp"
+    "ARGENTINO": "escudos/sudoeste-a1--argentino.webp",
+    "9 DE JULIO LANÚS": "escudos/sudoeste-a1--9-de-julio-lanus.webp",
+    "9 DE JULIO V. ALSINA": "escudos/sudoeste-a1--9-de-julio-v-alsina.webp"
   },
   "sudoeste-a2": {
     "LA LOMA": "escudos/sudoeste-a2--la-loma.webp",
