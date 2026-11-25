@@ -51,21 +51,6 @@ export const grupos = [
       { id: 'copa-plata', nombre: 'Copa de Plata', clubes: ['EL CICLÓN', 'MISTER CLUB', 'EL CIRCULO', 'LA 50', 'FIGUEROA', 'DEP. GONZALEZ', 'LOMAS DE BURZACO', 'EL CENTRO', 'SAN MARTIN', 'BAJO MARMOL', 'EL PAMPO', 'JUNIOR FUTSAL'] },
     ],
   },
-  {
-    id: 'baby', nombre: 'Baby · Cat. 2013', color: '#8fe08a',
-    zonas: [
-      { id: 'baby-1', nombre: 'Baby Zona 1', clubes: ['ITUZAINGO', 'LA FAROLA', 'SAN JOSE SUR', 'LA PERLA CLAYPOLE', 'LOMAS DE BURZACO', 'CICLON DE BURZACO', 'ALVEAR', 'LOS AMIGOS'] },
-      { id: 'baby-2', nombre: 'Baby Zona 2', clubes: ['BARRIO ENZ', 'SOCIAL LAS HERAS', 'SIN FRONTERAS', 'JUVENTUD PAMPAS', 'GUEMES RACING', '20 DE FEBRERO', 'EL CENTRO FUTSAL'] },
-    ],
-  },
-  {
-    id: 'femenino', nombre: 'Femenino · 8va', color: '#f08bc0',
-    zonas: [
-      { id: 'fem-lanus', nombre: 'Femenino Lanús', clubes: ['SOC. LAS HERAS', 'LOS CEIBOS', 'SPORTIVO CAMPOS', 'MANUEL BELGRANO', 'CLARIDAD', 'ELEVACION', 'COLUMBIA', 'MARPLATENSE', 'FOMENTO DE ESCALADA'] },
-      { id: 'fem-1', nombre: 'Femenino Zona 1', clubes: ['SCHULZ FUTSAL', 'INTER LONGCHAMPS', 'CULTURAL GUERNICA', 'BARRIO ENZ', 'ARZENO', 'ALMAFUERTE BURZACO', 'EL PORTO', 'ALTO VERDE', 'EL CIRCULO', 'FORTALEZA'] },
-      { id: 'fem-2', nombre: 'Femenino Zona 2', clubes: ['DEFENSORES DE SJ', 'ESTRELLA FEDERAL', 'BOUCHARD', '16 DE MAYO', 'LA PERLA TEMPERLEY', 'LOMAS FUTBOL', 'LA PERLA CLAYPOLE', 'EL CENTRO FUTSAL', 'UNION VECINAL', 'CICLON DE BURZACO', 'ATENEO PARROQUIAL'] },
-    ],
-  },
 ]
 
 export const todasLasZonas = grupos.flatMap(g => g.zonas.map(z => ({ ...z, grupo: g })))

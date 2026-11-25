@@ -53,7 +53,7 @@ export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cam
                   style={{ background: 'linear-gradient(145deg, rgba(20,48,90,0.95), rgba(11,31,58,0.95))' }}
                 >
                   <span className="absolute inset-y-0 left-0 w-1" style={{ background: g.color }} />
-                  <span className="block font-bold text-[15px] leading-tight">{z.nombre.replace(/^Diamante |^Femenino |^Baby /, '')}</span>
+                  <span className="block font-bold text-[15px] leading-tight">{z.nombre.replace(/^Diamante /, '')}</span>
                   <span className="flex items-center justify-between mt-1 text-white/45 text-xs">
                     {tablas ? 'Ver tabla' : `${cuantos(z.id)} clubes`} <Flecha className="w-4 h-4" />
                   </span>

@@ -16,7 +16,7 @@ _Última actualización: 19/11/2026_
 - **Inicio**: logo grande, buscador, 21 zonas agrupadas:
   - Elite (A, B) · Premier (A, B, Ascenso A, Ascenso B)
   - Diamante (Sudeste A, B1, B2 · Sudoeste A1, A2, B1, B2) · Copas (Oro, Plata)
-  - Baby Cat. 2013 (Zona 1, 2) · Femenino 8va (Lanús, Zona 1, Zona 2)
+  - (Baby Cat. 2013 y Femenino 8va eliminadas el 25/11/2026)
 - **Zona**: lista de clubes ordenada, cada uno con botón **"Cómo llegar"** → Google Maps.
 - **Buscador** de clubes (sin acentos) que muestra en qué zonas juega cada uno.
 - Botón **"Mapa de la liga"** → el mapa de Google Earth del sitio.

@@ -18,9 +18,13 @@ export function semilla() {
 
 // Si en la base el club no tiene escudo, usamos el del código (escudos.js):
 // así un escudo nuevo aparece solo con publicar, sin tocar Firebase.
-const aLista = obj => Object.entries(obj || {}).map(([id, c]) => ({
-  id, ...c, escudo: c.escudo || escudoDe(c.nombre, c.zonaId) || '',
-}))
+// Solo clubes de zonas que existen: si se saca una zona del código (ej. Baby y
+// Femenino 8va, 25/11/2026), sus clubes viejos de la base dejan de verse.
+const zonasValidas = new Set(todasLasZonas.map(z => z.id))
+export const zonaValida = id => zonasValidas.has(id)
+const aLista = obj => Object.entries(obj || {})
+  .filter(([, c]) => zonasValidas.has(c?.zonaId))
+  .map(([id, c]) => ({ id, ...c, escudo: c.escudo || escudoDe(c.nombre, c.zonaId) || '' }))
 const CACHE = 'laf_clubes_v1'
 
 function leerCache() {

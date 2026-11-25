@@ -115,7 +115,7 @@ export default function NuevoPartido({ arbitros, volver }) {
                     className="relative text-left rounded-2xl px-3.5 py-3 border border-white/10 active:scale-[0.97] transition-transform overflow-hidden font-bold text-[15px]"
                     style={{ background: 'linear-gradient(145deg, rgba(20,48,90,0.95), rgba(11,31,58,0.95))' }}>
                     <span className="absolute inset-y-0 left-0 w-1" style={{ background: g.color }} />
-                    {z.nombre.replace(/^Diamante |^Femenino |^Baby /, '')}
+                    {z.nombre.replace(/^Diamante /, '')}
                   </button>
                 ))}
               </div>

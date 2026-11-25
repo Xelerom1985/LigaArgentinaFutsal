@@ -1,17 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { db, ref, get, set, update, push, remove, adminSignOut } from '../firebase'
 import { grupos, norm } from '../data/zonas'
-import { useClubes, semilla, zonaPorId } from '../data/clubes'
+import { useClubes, semilla, zonaPorId, zonaValida } from '../data/clubes'
 import { Escudo } from '../components/ClubRow'
 import { Atras, Mas, Lapiz, Lupa, CandadoAbierto, Flecha } from '../components/Iconos'
 import { prepararEscudo } from './imagen'
 
 const grupoDeZona = zonaId => grupos.find(g => g.zonas.some(z => z.id === zonaId))
 
-// La primera vez sube a Firebase los clubes que venían en el código
+// La primera vez sube a Firebase los clubes que venían en el código.
+// Además borra de la base los clubes de zonas que ya no existen
+// (ej. Baby y Femenino 8va, sacadas el 25/11/2026).
 async function asegurarBase() {
   const s = await get(ref(db, 'clubes'))
-  if (!s.exists()) await set(ref(db, 'clubes'), semilla())
+  if (!s.exists()) return set(ref(db, 'clubes'), semilla())
+  const viejos = {}
+  for (const [id, c] of Object.entries(s.val())) if (!zonaValida(c?.zonaId)) viejos[id] = null
+  if (Object.keys(viejos).length) await update(ref(db, 'clubes'), viejos)
 }
 
 function Cabecera({ titulo, volver }) {

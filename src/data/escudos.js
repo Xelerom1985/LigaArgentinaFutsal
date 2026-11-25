@@ -159,22 +159,9 @@ export const escudosPorZona = {
   }
 }
 
-// Mismo club escrito distinto en Baby / Femenino
-const alias = {
-  'SOC. LAS HERAS': 'SOCIAL LAS HERAS',
-  'LA PERLA TEMPERLEY': 'LA PERLA TEMP.',
-  'DEFENSORES DE SJ': 'DEFE. SAN JOSÉ',
-  'EL PORTO': 'EL PORTO FUTSAL',
-  'ELEVACION': 'ELEVACIÓN',
-  'UNION VECINAL': 'UNIÓN VECINAL',
-  'MANUEL BELGRANO': 'BELGRANO',
-  'EL CENTRO FUTSAL': 'EL CENTRO',
-}
-
 export function escudoDe(club, zonaId) {
   const z = escudosPorZona[zonaId]
   if (z && z[club]) return './' + z[club]
-  const nombre = alias[club] || club
-  for (const zona of Object.values(escudosPorZona)) if (zona[nombre]) return './' + zona[nombre]
+  for (const zona of Object.values(escudosPorZona)) if (zona[club]) return './' + zona[club]
   return null
 }
