@@ -1,4 +1,5 @@
 import { CATEGORIAS } from './categorias'
+import { torneoDe } from './torneo'
 
 // Tabla de posiciones de una zona, sin goles: 3 pts ganado, 1 empatado, 0 perdido.
 // Devuelve una tabla por categoría y una general que suma todas las categorías.
@@ -12,13 +13,15 @@ function sumar(s, r) {
 const ordenar = filas => filas.sort((a, b) =>
   b.pts - a.pts || b.pg - a.pg || a.pp - b.pp || a.nombre.localeCompare(b.nombre, 'es'))
 
-export function calcularTablas(partidos, clubes, zonaId) {
+// `torneoId`: solo cuentan los partidos de ese torneo (Apertura, Clausura…)
+export function calcularTablas(partidos, clubes, zonaId, torneoId) {
   const delaZona = clubes.filter(c => c.zonaId === zonaId)
   const nombres = new Set(delaZona.map(c => c.nombre))
   const porCat = {}   // cat -> nombre -> stats
   const general = {}  // nombre -> stats
 
   for (const p of partidos) {
+    if (torneoId && torneoDe(p) !== torneoId) continue
     const res = p.resultados || {}
     const lados = [
       { nombre: p.local, zona: p.zonaId, gana: 'L' },

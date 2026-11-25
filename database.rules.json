@@ -60,6 +60,18 @@
         }
       }
     },
+    "config": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
+      "torneoActual": {
+        ".validate": "newData.isString() && newData.val().length <= 60"
+      },
+      "torneos": {
+        "$id": {
+          ".validate": "newData.hasChildren(['nombre']) && newData.child('nombre').isString() && newData.child('nombre').val().length <= 60"
+        }
+      }
+    },
     "$other": {
       ".read": false,
       ".write": false

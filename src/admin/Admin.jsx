@@ -2,6 +2,7 @@ import { useState } from 'react'
 import ListaPartidos from '../components/ListaPartidos'
 import Arbitros from './Arbitros'
 import Planillas from './Planillas'
+import TorneoAdmin from './TorneoAdmin'
 import Logo from '../components/Logo'
 import { Mas, Salir } from '../components/Iconos'
 import { salir } from '../firebase'
@@ -28,6 +29,7 @@ export default function Admin({ partidos, arbitros, abrir, nuevo, abrirClubes, i
         ))}
       </div>
 
+      {tab === 'partidos' && <TorneoAdmin partidos={partidos} />}
       {tab === 'partidos' && <ListaPartidos partidos={partidos} abrir={abrir} mostrarArbitro vacio="No hay partidos asignados. Tocá + para asignar el primero." />}
       {tab === 'arbitros' && <Arbitros arbitros={arbitros} partidos={partidos} />}
       {tab === 'planillas' && <Planillas partidos={partidos} />}

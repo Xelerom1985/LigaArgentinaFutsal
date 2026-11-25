@@ -3,9 +3,11 @@ import { useClubes } from '../data/clubes'
 import { Lupa, Flecha } from './Iconos'
 import { Escudo } from './ClubRow'
 import { useDatosClub } from './MiClub'
+import { useTorneos } from '../data/torneo'
 
 export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cambiarModo, abrirTabla, miKey, abrirMiClub }) {
   const tablas = modo === 'tablas'
+  const { nombreActual } = useTorneos()
   const clubes = useClubes()
   const cuantos = id => clubes.filter(c => c.zonaId === id).length
   return (
@@ -15,6 +17,7 @@ export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cam
         <img src="./logo.png" alt="Liga Argentina de Futsal" className="w-48 h-48 sm:w-56 sm:h-56 object-contain drop-shadow-[0_10px_30px_rgba(116,169,221,0.35)]" />
         <h1 className="font-display text-4xl tracking-wide mt-3 text-center leading-none">Liga Argentina de Futsal</h1>
         <p className="text-celeste-light/70 text-sm mt-1">La liga de los clubes de barrio</p>
+        <span className="mt-3 rounded-full px-4 py-1 text-xs font-black uppercase tracking-widest bg-amber-300 text-noche shadow-lg">{nombreActual}</span>
       </div>
 
       <TarjetaMiClub miKey={miKey} abrir={abrirMiClub} />

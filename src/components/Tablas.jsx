@@ -3,14 +3,18 @@ import { todasLasZonas } from '../data/zonas'
 import { useClubes } from '../data/clubes'
 import { usePartidos } from '../data/partidos'
 import { calcularTablas } from '../data/tablas'
+import { useTorneos } from '../data/torneo'
 import { Escudo } from './ClubRow'
 import { Atras } from './Iconos'
 
 export default function Tablas({ zonaId, volver }) {
   const clubes = useClubes()
   const partidos = usePartidos()
+  const torneos = useTorneos()
+  const [torneoSel, setTorneoSel] = useState('')
+  const torneoId = torneoSel || torneos.actual
   const z = todasLasZonas.find(x => x.id === zonaId)
-  const t = useMemo(() => calcularTablas(partidos, clubes, zonaId), [partidos, clubes, zonaId])
+  const t = useMemo(() => calcularTablas(partidos, clubes, zonaId, torneoId), [partidos, clubes, zonaId, torneoId])
   const [cat, setCat] = useState('general')
   if (!z) return null
   const filas = cat === 'general' ? t.general : t.porCategoria[cat] || t.general
@@ -25,11 +29,22 @@ export default function Tablas({ zonaId, volver }) {
           </button>
           <img src="./logo.png" alt="" className="w-9 h-9 object-contain" />
           <div className="min-w-0">
-            <p className="text-[11px] uppercase tracking-widest font-bold" style={{ color: z.grupo.color }}>Tabla de posiciones</p>
+            <p className="text-[11px] uppercase tracking-widest font-bold" style={{ color: z.grupo.color }}>{torneos.nombre(torneoId)}</p>
             <h2 className="font-display text-2xl leading-none tracking-wide truncate">{z.nombre}</h2>
           </div>
         </div>
-        {/* Categorías: General + las que tienen resultados */}
+        {/* Torneo (si hay más de uno) */}
+        {torneos.lista.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto px-4 pb-2 max-w-md mx-auto no-scrollbar">
+            {torneos.lista.map(x => (
+              <button key={x.id} onClick={() => setTorneoSel(x.id)}
+                className={`shrink-0 rounded-lg px-3 py-1 text-[11px] font-bold border ${torneoId === x.id ? 'bg-white text-noche border-white' : 'border-white/15 text-white/55'}`}>
+                {x.nombre}{x.id === torneos.actual ? ' · en curso' : ''}
+              </button>
+            ))}
+          </div>
+        )}
+        {/* Categorías: General + todas */}
         <div className="flex gap-2 overflow-x-auto px-4 pb-3 max-w-md mx-auto no-scrollbar">
           {['general', ...t.categorias].map(c => (
             <button key={c} onClick={e => { setCat(c); e.currentTarget.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }) }}
@@ -45,6 +60,7 @@ export default function Tablas({ zonaId, volver }) {
       <div className="px-3 pt-4 pb-6 w-full max-w-md mx-auto float-in" key={cat}>
         <p className="font-display text-xl tracking-wider text-center mb-2" style={{ color: z.grupo.color }}>
           {cat === 'general' ? 'Tabla general · todas las categorías' : cat}
+          <span className="block font-sans text-[11px] tracking-widest uppercase text-white/50">{torneos.nombre(torneoId)}</span>
         </p>
         <TablaPosiciones filas={filas} />
         <p className="text-white/40 text-[11px] text-center mt-3">

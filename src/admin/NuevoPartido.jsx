@@ -6,10 +6,12 @@ import { CATEGORIAS, finDeSemana, fechaCorta, hoyISO } from '../data/categorias'
 import Escudo from '../components/Escudo'
 import { Atras, Lupa, Check } from '../components/Iconos'
 import { mensajeError } from '../firebase'
+import { useTorneos } from '../data/torneo'
 
 // Asignar partido en pocos toques: fecha → zona → local → visitante → (árbitro, opcional) → Guardar
 export default function NuevoPartido({ arbitros, volver }) {
   const clubes = useClubes()
+  const torneos = useTorneos()
   const [sab, dom] = finDeSemana()
   const [fecha, setFecha] = useState(sab)
   const [zonaId, setZonaId] = useState('')
@@ -52,7 +54,7 @@ export default function NuevoPartido({ arbitros, volver }) {
     setGuardando(true)
     try {
       await set(push(ref(db, 'partidos')), {
-        fecha, zonaId, local, visitante, visitanteZonaId: zVis, categorias,
+        fecha, zonaId, local, visitante, visitanteZonaId: zVis, categorias, torneo: torneos.actual,
         ...(arb ? { arbitroUid: arb.id, arbitroNombre: `${arb.nombre} ${arb.apellido}`.trim() } : {}),
         estado: 'pendiente', creado: Date.now(),
       })
@@ -73,7 +75,10 @@ export default function NuevoPartido({ arbitros, volver }) {
     <div className="px-4 safe-top pb-32 max-w-md mx-auto">
       <div className="flex items-center gap-2 pt-3 pb-1">
         <button onClick={atras} className="w-10 h-10 -ml-2 flex items-center justify-center text-white/70"><Atras className="w-6 h-6" /></button>
-        <h2 className="font-display text-3xl tracking-wide">Asignar partido</h2>
+        <div>
+          <h2 className="font-display text-3xl tracking-wide leading-none">Asignar partido</h2>
+          <p className="text-xs text-amber-300/80">{torneos.nombreActual}</p>
+        </div>
       </div>
 
       {/* Fecha */}

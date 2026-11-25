@@ -3,6 +3,7 @@ import { norm, mapsUrl } from '../data/zonas'
 import { useClubes, zonaPorId } from '../data/clubes'
 import { usePartidos } from '../data/partidos'
 import { calcularTablas } from '../data/tablas'
+import { useTorneos, torneoDe } from '../data/torneo'
 import { fechaCorta, hoyISO } from '../data/categorias'
 import { TablaPosiciones } from './Tablas'
 import { Escudo } from './ClubRow'
@@ -76,13 +77,15 @@ export function ElegirClub({ elegir, volver }) {
 export function useDatosClub(miKey) {
   const clubes = useClubes()
   const partidos = usePartidos()
+  const { actual: torneoId } = useTorneos()
   const entradas = useMemo(() => clubes.filter(c => norm(c.nombre) === miKey), [clubes, miKey])
   const porZona = useMemo(() => entradas.map(club => {
     const z = club.zonaId
-    const t = calcularTablas(partidos, clubes, z)
+    const t = calcularTablas(partidos, clubes, z, torneoId)
     const pos = t.general.findIndex(f => f.nombre === club.nombre)
     const fila = t.general[pos] || { pj: 0, pg: 0, pe: 0, pp: 0, pts: 0 }
     const jugados = partidos
+      .filter(p => torneoDe(p) === torneoId)
       .map(p => {
         const esLocal = p.local === club.nombre && p.zonaId === z
         const esVis = p.visitante === club.nombre && (p.visitanteZonaId || p.zonaId) === z
@@ -99,12 +102,13 @@ export function useDatosClub(miKey) {
       .sort((a, b) => b.fecha.localeCompare(a.fecha) || (b.creado || 0) - (a.creado || 0))
     const porCategoria = t.categorias.map(c => ({ cat: c, ...(t.porCategoria[c].find(f => f.nombre === club.nombre)) })).filter(x => x.pj)
     return { club, zona: zonaPorId[z], tabla: t, pos: fila.pj ? pos + 1 : null, fila, jugados, porCategoria, total: t.general.length }
-  }), [entradas, partidos, clubes])
+  }), [entradas, partidos, clubes, torneoId])
   return { entradas, porZona, clubes }
 }
 
 // ---- Pantalla Mi club ----
 export default function MiClub({ miKey, cambiar, volver, abrirTabla }) {
+  const { nombreActual } = useTorneos()
   const { porZona } = useDatosClub(miKey)
   const [zi, setZi] = useState(0)
   const [tab, setTab] = useState('resumen')
@@ -139,6 +143,7 @@ export default function MiClub({ miKey, cambiar, volver, abrirTabla }) {
             <div className="min-w-0 flex-1">
               <h1 className="font-display text-3xl leading-none tracking-wide">{club.nombre} <span className="text-amber-300 text-2xl">★</span></h1>
               <p className="text-sm mt-1" style={{ color }}>{zona?.grupo.nombre} · {zona?.nombre}</p>
+              <p className="text-[11px] uppercase tracking-widest font-bold text-amber-300 mt-0.5">{nombreActual}</p>
             </div>
           </div>
           {porZona.length > 1 && (
