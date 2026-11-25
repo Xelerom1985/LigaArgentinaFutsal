@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { db, ref, onValue, set, update, crearCuentaAdmin, cambiarPinSuper, mensajeError, PIN_ADMIN_RESERVADO } from '../firebase'
+import { db, ref, onValue, set, update, remove, crearCuentaAdmin, cambiarPinSuper, mensajeError, PIN_ADMIN_RESERVADO } from '../firebase'
 import { Mas, Ojo, CandadoAbierto } from '../components/Iconos'
 
 const azar = n => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join('')
@@ -13,6 +13,7 @@ export default function Accesos() {
   const [msg, setMsg] = useState('')
   const [nuevoPin, setNuevoPin] = useState({ a: '', b: '' })
   const [cambiando, setCambiando] = useState(false)
+  const [cambioAdmin, setCambioAdmin] = useState(null) // { id, pin }
 
   useEffect(() => onValue(ref(db, 'admins'), s => setAdmins(Object.entries(s.val() || {}).map(([id, x]) => ({ id, ...x }))), () => {}), [])
 
@@ -26,6 +27,20 @@ export default function Accesos() {
       const uid = await crearCuentaAdmin(pin)
       await set(ref(db, 'admins/' + uid), { nombre, pin, activo: true, creado: Date.now() })
       setAlta(null); setMsg('Listo: ya pueden entrar con ese PIN por el botón Admin')
+    } catch (e) { setMsg(mensajeError(e)) }
+  }
+  // Cambiar el PIN de un Admin: nueva cuenta con el PIN nuevo y se borra el registro viejo
+  // (la cuenta vieja queda sin permisos: sin registro en /admins no puede hacer nada)
+  const cambiarPinAdmin = async a => {
+    const pin = cambioAdmin.pin
+    if (!/^\d{4}$/.test(pin)) return setMsg('El PIN de Admin tiene que tener 4 números')
+    if (pin === PIN_ADMIN_RESERVADO || admins.some(x => x.pin === pin)) return setMsg('Ese PIN ya está usado')
+    setMsg('Cambiando…')
+    try {
+      const uid = await crearCuentaAdmin(pin)
+      await set(ref(db, 'admins/' + uid), { nombre: a.nombre, pin, activo: true, creado: Date.now() })
+      if (uid !== a.id) await remove(ref(db, 'admins/' + a.id))
+      setCambioAdmin(null); setMsg(`Listo: ${a.nombre} ahora entra con el PIN nuevo. El anterior ya no funciona.`)
     } catch (e) { setMsg(mensajeError(e)) }
   }
   const activar = (a, v) => update(ref(db, 'admins/' + a.id), { activo: v }).catch(e => setMsg(mensajeError(e)))
@@ -79,7 +94,7 @@ export default function Accesos() {
                 className={`${campo} w-36 text-center tracking-[0.2em] font-bold`} />
               <button onClick={() => setAlta({ ...alta, pin: azar(4) })} className="text-xs text-amber-300 underline">Otro al azar</button>
             </div>
-            <p className="text-[11px] text-white/40">El PIN no se puede cambiar después: para cambiarlo, creá uno nuevo y dá de baja el viejo.</p>
+            <p className="text-[11px] text-white/40">Después lo podés cambiar con "Cambiar PIN".</p>
             <div className="flex gap-2">
               <button onClick={() => setAlta(null)} className="flex-1 rounded-xl py-2.5 bg-white/5 text-white/60 text-sm">Cancelar</button>
               <button onClick={crear} className="flex-1 rounded-xl py-2.5 bg-amber-300 text-noche text-sm font-bold">Crear acceso</button>
@@ -88,14 +103,26 @@ export default function Accesos() {
         )}
         {!admins.length && !alta && <p className="text-white/40 text-sm text-center py-4">Todavía no hay PIN de Admin para la Liga.</p>}
         {admins.map(a => (
-          <div key={a.id} className={`rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 flex items-center gap-3 ${a.activo === false ? 'opacity-50' : ''}`}>
+          <div key={a.id} className={`rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 flex flex-wrap items-center gap-3 ${a.activo === false ? 'opacity-50' : ''}`}>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm truncate">{a.nombre}</p>
               <button onClick={() => setVer(v => ({ ...v, [a.id]: !v[a.id] }))} className="text-xs text-white/50 font-mono inline-flex items-center gap-1">
                 PIN {ver[a.id] ? a.pin : '••••'} <Ojo className="w-3.5 h-3.5" />
               </button>
             </div>
-            <button onClick={() => activar(a, a.activo === false)} className="text-xs rounded-lg px-2.5 py-1.5 bg-white/10">{a.activo === false ? 'Habilitar' : 'Dar de baja'}</button>
+            <div className="flex flex-col gap-1 items-end">
+              <button onClick={() => { setMsg(''); setCambioAdmin({ id: a.id, pin: azar(4) }) }} className="text-xs rounded-lg px-2.5 py-1.5 bg-amber-300/20 text-amber-200">Cambiar PIN</button>
+              <button onClick={() => activar(a, a.activo === false)} className="text-xs rounded-lg px-2.5 py-1.5 bg-white/10">{a.activo === false ? 'Habilitar' : 'Dar de baja'}</button>
+            </div>
+            {cambioAdmin?.id === a.id && (
+              <div className="basis-full flex items-center gap-2 pt-2 border-t border-white/10 mt-1">
+                <span className="text-xs text-white/60">PIN nuevo</span>
+                <input value={cambioAdmin.pin} inputMode="numeric" maxLength={4} onChange={e => setCambioAdmin({ ...cambioAdmin, pin: e.target.value.replace(/\D/g, '') })}
+                  className={`${campo} w-24 text-center tracking-[0.2em] font-bold py-1.5`} />
+                <button onClick={() => setCambioAdmin(null)} className="text-xs text-white/50">Cancelar</button>
+                <button onClick={() => cambiarPinAdmin(a)} className="ml-auto rounded-lg px-3 py-1.5 bg-amber-300 text-noche text-xs font-bold">Guardar</button>
+              </div>
+            )}
           </div>
         ))}
       </section>

@@ -52,7 +52,16 @@ async function crearCuenta(email, clave) {
   }
 }
 export const crearCuentaArbitro = pin => crearCuenta(arbitroEmail(pin), arbitroClave(pin))
-export const crearCuentaAdmin = pin => crearCuenta(adminLigaEmail(pin), adminLigaClave(pin))
+// Si ese PIN de Admin ya se usó antes (cuenta vieja dada de baja), se reutiliza esa cuenta
+export async function crearCuentaAdmin(pin) {
+  try { return await crearCuenta(adminLigaEmail(pin), adminLigaClave(pin)) }
+  catch (e) {
+    if (!(e?.code || '').includes('email-already-in-use')) throw e
+    const tmp = initializeApp(config, 'reuso-' + Date.now())
+    try { return (await signInWithEmailAndPassword(getAuth(tmp), adminLigaEmail(pin), adminLigaClave(pin))).user.uid }
+    finally { await deleteApp(tmp).catch(() => {}) }
+  }
+}
 
 export function mensajeError(e) {
   const c = e?.code || e?.message || ''
