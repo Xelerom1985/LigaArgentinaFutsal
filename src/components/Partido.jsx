@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { db, ref, get, update, remove, auth, mensajeError } from '../firebase'
 import { fechaCorta } from '../data/categorias'
 import { prepararHoja, abrirDataUrl } from '../admin/imagen'
-import { vencida, DIAS_PLANILLA } from '../data/limpieza'
+import { vencida, CUANDO_SE_BORRAN } from '../data/limpieza'
 import Escudo, { useEscudo } from './Escudo'
 import { nombreZonas } from './ListaPartidos'
 import { Atras, Clip, Check, Basura, Candado } from './Iconos'
@@ -135,7 +135,7 @@ export default function Partido({ partido: p, admin, arbitros = [], volver }) {
                 <div className="flex items-center gap-2">
                   <span className="w-9" />
                   <Luz label="Empate" activa={r === 'E'} color={AMARILLO} borde={`${AMARILLO}66`} onClick={() => elegir(i, 'E')} />
-                  <button onClick={() => (venc ? mostrar(`Planilla borrada a los ${DIAS_PLANILLA} días (está en el ZIP de la fecha)`) : hoja ? verHoja(i) : editable && examinar(i))}
+                  <button onClick={() => (venc ? mostrar(`Las planillas se borran ${CUANDO_SE_BORRAN} (está en el ZIP de la fecha)`) : hoja ? verHoja(i) : editable && examinar(i))}
                     onContextMenu={e => { e.preventDefault(); editable && examinar(i) }}
                     aria-label={venc ? 'Planilla vencida' : hoja ? 'Ver hoja firmada' : 'Subir hoja firmada'}
                     className={`w-9 h-9 rounded-full flex items-center justify-center border ${venc ? 'bg-white/10 border-white/20 text-white/40' : hoja ? 'bg-emerald-500/20 border-emerald-400/60 text-emerald-300' : 'border-white/15 text-white/45'}`}>

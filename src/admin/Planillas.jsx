@@ -2,13 +2,13 @@ import { useMemo, useState } from 'react'
 import { db, ref, get, mensajeError } from '../firebase'
 import { zonaPorId } from '../data/clubes'
 import { fechaCorta, isoDe } from '../data/categorias'
-import { vencida, venceEl, DIAS_PLANILLA } from '../data/limpieza'
+import { vencida, venceEl, CUANDO_SE_BORRAN } from '../data/limpieza'
 
 const limpio = s => String(s || '').replace(/[\\/:*?"<>|]+/g, '-').trim()
 const RES = { L: 'Ganó local', E: 'Empate', V: 'Ganó visitante' }
 const diaHora = d => `${fechaCorta(isoDe(d))} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 
-// Planillas firmadas por fecha: descargar en ZIP antes de que se borren (6 días)
+// Planillas firmadas por fecha: descargar en ZIP antes de que se borren (domingo 6:00)
 export default function Planillas({ partidos }) {
   const [bajando, setBajando] = useState('')
   const [progreso, setProgreso] = useState('')
@@ -72,8 +72,8 @@ export default function Planillas({ partidos }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-white/55 text-sm">
-        Las planillas firmadas se borran solas <b className="text-white">{DIAS_PLANILLA} días</b> después de subidas, para no llenar la base.
-        Descargá el ZIP de cada fecha antes y guardalo (por ejemplo en Drive). Incluye un <b className="text-white">resultados.csv</b> para Excel.
+        Las planillas firmadas se borran solas <b className="text-white">{CUANDO_SE_BORRAN}</b>, para no llenar la base.
+        Descargá el ZIP de la fecha antes (de domingo a sábado) y guardalo (por ejemplo en Drive). Incluye un <b className="text-white">resultados.csv</b> para Excel.
       </p>
       {progreso && <p className="text-sm text-amber-300">{progreso}</p>}
       {error && <p className="text-sm text-red-400">{error}</p>}
@@ -90,7 +90,7 @@ export default function Planillas({ partidos }) {
               </p>
               {f.vivas > 0 && (
                 <p className={`text-xs mt-0.5 ${quedan <= 1 ? 'text-red-400 font-bold' : 'text-white/40'}`}>
-                  Se empiezan a borrar el {diaHora(f.vence)}{quedan <= 1 ? ' — ¡descargalas ya!' : ''}
+                  Se borran el {diaHora(f.vence)}{quedan <= 1 ? ' — ¡descargalas ya!' : ''}
                 </p>
               )}
             </div>
