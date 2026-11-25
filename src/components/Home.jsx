@@ -2,7 +2,8 @@ import { grupos } from '../data/zonas'
 import { useClubes } from '../data/clubes'
 import { Lupa, Flecha } from './Iconos'
 
-export default function Home({ abrirZona, abrirBuscar }) {
+export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cambiarModo, abrirTabla }) {
+  const tablas = modo === 'tablas'
   const clubes = useClubes()
   const cuantos = id => clubes.filter(c => c.zonaId === id).length
   return (
@@ -14,12 +15,20 @@ export default function Home({ abrirZona, abrirBuscar }) {
         <p className="text-celeste-light/70 text-sm mt-1">La liga de los clubes de barrio</p>
       </div>
 
-      <button
+      {/* Ubicaciones / Tablas */}
+      <div className="mt-5 w-full max-w-md grid grid-cols-2 gap-1 p-1 rounded-2xl bg-white/[0.07] border border-white/10">
+        {[['ubicaciones', 'Clubes y ubicaciones'], ['tablas', 'Tablas de posiciones']].map(([k, l]) => (
+          <button key={k} onClick={() => cambiarModo(k)}
+            className={`rounded-xl py-2.5 text-sm font-bold transition-colors ${modo === k ? 'bg-celeste text-noche' : 'text-white/60'}`}>{l}</button>
+        ))}
+      </div>
+
+      {!tablas && <button
         onClick={abrirBuscar}
         className="mt-5 w-full max-w-md flex items-center gap-3 rounded-2xl px-4 py-3 bg-white/[0.07] border border-white/10 text-white/50 text-sm active:bg-white/10"
       >
         <Lupa className="w-5 h-5" /> Buscar un club…
-      </button>
+      </button>}
 
       <div className="w-full max-w-md mt-6 flex flex-col gap-6 pb-6">
         {grupos.map((g, gi) => (
@@ -32,14 +41,14 @@ export default function Home({ abrirZona, abrirBuscar }) {
               {g.zonas.map(z => (
                 <button
                   key={z.id}
-                  onClick={() => abrirZona(z.id)}
+                  onClick={() => (tablas ? abrirTabla(z.id) : abrirZona(z.id))}
                   className="relative text-left rounded-2xl px-3.5 py-3 border border-white/10 active:scale-[0.97] transition-transform overflow-hidden"
                   style={{ background: 'linear-gradient(145deg, rgba(20,48,90,0.95), rgba(11,31,58,0.95))' }}
                 >
                   <span className="absolute inset-y-0 left-0 w-1" style={{ background: g.color }} />
                   <span className="block font-bold text-[15px] leading-tight">{z.nombre.replace(/^Diamante |^Femenino |^Baby /, '')}</span>
                   <span className="flex items-center justify-between mt-1 text-white/45 text-xs">
-                    {cuantos(z.id)} clubes <Flecha className="w-4 h-4" />
+                    {tablas ? 'Ver tabla' : `${cuantos(z.id)} clubes`} <Flecha className="w-4 h-4" />
                   </span>
                 </button>
               ))}

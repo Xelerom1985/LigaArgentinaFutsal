@@ -10,3 +10,10 @@ export const Candado = (p) => <svg {...base} {...p}><rect x="5" y="11" width="14
 export const CandadoAbierto = (p) => <svg {...base} {...p}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 017.8-1.2" /></svg>
 export const Mas = (p) => <svg {...base} {...p}><path d="M12 5v14M5 12h14" /></svg>
 export const Lapiz = (p) => <svg {...base} {...p}><path d="M15.2 5.2l3.6 3.6M4 20l4-1 11-11a2.5 2.5 0 00-3.6-3.6l-11 11-1 4z" /></svg>
+export const Clip = (p) => <svg {...base} {...p}><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>
+export const Salir = (p) => <svg {...base} {...p}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+export const Check = (p) => <svg {...base} {...p}><path d="M5 13l4 4L19 7" /></svg>
+export const Basura = (p) => <svg {...base} {...p}><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" /></svg>
+export const Silbato = (p) => <svg {...base} {...p}><circle cx="9" cy="14" r="5" /><path d="M13 11l8-3v4l-6 2" /><path d="M9 14h.01" /></svg>
+export const Usuario = (p) => <svg {...base} {...p}><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0116 0" /></svg>
+export const Ojo = (p) => <svg {...base} {...p}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>

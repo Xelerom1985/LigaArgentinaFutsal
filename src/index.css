@@ -24,3 +24,4 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #06142a; }
 ::-webkit-scrollbar-thumb { background: #74a9dd; border-radius: 2px; }
+.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { scrollbar-width: none; }

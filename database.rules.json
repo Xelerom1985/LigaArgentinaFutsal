@@ -16,14 +16,19 @@
       }
     },
     "partidos": {
-      ".read": "auth != null && (auth.token.email == 'admin@liga-argentina-futsal.app' || (query.orderByChild == 'arbitroUid' && query.equalTo == auth.uid))",
+      ".read": true,
       ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
-      ".indexOn": ["arbitroUid", "fecha"],
+      ".indexOn": [
+        "arbitroUid",
+        "fecha"
+      ],
       "$id": {
         ".read": "auth != null && data.child('arbitroUid').val() == auth.uid",
         "resultados": {
           ".write": "auth != null && data.parent().child('arbitroUid').val() == auth.uid && data.parent().child('estado').val() != 'cerrado' && root.child('arbitros/' + auth.uid + '/activo').val() == true",
-          "$cat": { ".validate": "newData.isString() && newData.val().matches(/^(L|E|V)$/)" }
+          "$cat": {
+            ".validate": "newData.isString() && newData.val().matches(/^(L|E|V)$/)"
+          }
         },
         "estado": {
           ".write": "auth != null && data.parent().child('arbitroUid').val() == auth.uid && data.val() != 'cerrado' && newData.val() != 'cerrado' && root.child('arbitros/' + auth.uid + '/activo').val() == true"
@@ -52,6 +57,9 @@
         }
       }
     },
-    "$other": { ".read": false, ".write": false }
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
   }
 }

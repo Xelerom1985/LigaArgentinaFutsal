@@ -33,3 +33,43 @@ export function prepararEscudo(file, max = 200) {
     img.src = url
   })
 }
+// Hoja firmada: foto achicada a 1600 px en JPEG (~200-400 KB) o PDF tal cual (máx. 1,5 MB).
+// Devuelve { data (data URL), tipo, nombre }.
+export function prepararHoja(file) {
+  if (file.type === 'application/pdf') {
+    if (file.size > 1.5 * 1024 * 1024) return Promise.reject(new Error('El PDF pesa más de 1,5 MB. Mandá una foto.'))
+    return new Promise((resolve, reject) => {
+      const r = new FileReader()
+      r.onload = () => resolve({ data: r.result, tipo: 'pdf', nombre: file.name })
+      r.onerror = () => reject(new Error('No se pudo leer el archivo'))
+      r.readAsDataURL(file)
+    })
+  }
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      try {
+        const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight))
+        const c = document.createElement('canvas')
+        c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k)
+        const ctx = c.getContext('2d')
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height)
+        ctx.drawImage(img, 0, 0, c.width, c.height)
+        resolve({ data: c.toDataURL('image/jpeg', 0.72), tipo: 'imagen', nombre: file.name })
+      } catch (e) { reject(e) } finally { URL.revokeObjectURL(url) }
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')) }
+    img.src = url
+  })
+}
+
+// Abre una hoja guardada (data URL) en otra pestaña
+export function abrirDataUrl(data) {
+  const [meta, b64] = data.split(',')
+  const tipo = meta.match(/data:([^;]+)/)?.[1] || 'application/octet-stream'
+  const bin = atob(b64)
+  const arr = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i)
+  window.open(URL.createObjectURL(new Blob([arr], { type: tipo })), '_blank')
+}
