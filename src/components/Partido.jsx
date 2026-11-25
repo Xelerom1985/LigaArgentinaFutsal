@@ -20,6 +20,9 @@ const VERDE = '#22c55e', AMARILLO = '#facc15', ROJO = '#ef4444'
 export default function Partido({ partido: p, admin, superAdmin, arbitros = [], volver }) {
   const escudo = useEscudo()
   const [res, setRes] = useState(p.resultados || {})
+  // Categorías canceladas: resultado 'C' + motivo en p.cancelaciones[i]
+  const [canc, setCanc] = useState(p.cancelaciones || {})
+  const [cancelando, setCancelando] = useState(null) // { i, motivo }
   const [cambios, setCambios] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [subiendo, setSubiendo] = useState(null)
@@ -32,13 +35,24 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
   const cats = p.categorias || []
 
   // Si otro dispositivo cambia los resultados y acá no hay cambios sin guardar, se actualiza
-  useEffect(() => { if (!cambios) setRes(p.resultados || {}) }, [p.resultados]) // eslint-disable-line
+  useEffect(() => { if (!cambios) { setRes(p.resultados || {}); setCanc(p.cancelaciones || {}) } }, [p.resultados, p.cancelaciones]) // eslint-disable-line
 
   const mostrar = m => { setAviso(m); setTimeout(() => setAviso(''), 2500) }
   const elegir = (i, v) => {
     if (!editable) return
     setRes(r => { const n = { ...r }; if (n[i] === v) delete n[i]; else n[i] = v; return n })
+    setCanc(c => { const n = { ...c }; delete n[i]; return n }) // elegir un resultado saca la cancelación
     setCambios(true)
+  }
+  const cancelar = (i, motivo) => {
+    setRes(r => ({ ...r, [i]: 'C' }))
+    setCanc(c => ({ ...c, [i]: { motivo: motivo.trim(), cuando: Date.now(), por: auth.currentUser?.uid || '' } }))
+    setCambios(true); setCancelando(null)
+  }
+  const quitarCancelacion = i => {
+    setRes(r => { const n = { ...r }; delete n[i]; return n })
+    setCanc(c => { const n = { ...c }; delete n[i]; return n })
+    setCambios(true); setCancelando(null)
   }
 
   const guardar = async () => {
@@ -47,6 +61,7 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
       const completos = cats.every((_, i) => res[i])
       await update(ref(db, 'partidos/' + p.id), {
         resultados: res,
+        cancelaciones: canc,
         estado: cerrado ? 'cerrado' : completos ? 'cargado' : 'en curso',
         actualizado: Date.now(),
         act: ACT(),
@@ -127,15 +142,17 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
       <div className="rounded-2xl bg-[#1c1c1f]/90 border border-white/10 divide-y divide-white/[0.06] overflow-hidden">
         {cats.map((c, i) => {
           const r = res[i]
+          const cancelada = r === 'C'
           const hoja = hojas[i]
           const venc = vencida(hoja)
           return (
-            <div key={i} className="flex items-center gap-2 px-3 py-3">
+            <div key={i} className={`flex flex-wrap items-center gap-2 px-3 py-3 ${cancelada ? 'bg-red-500/[0.08]' : ''}`}>
               <Luz label="Gana local" activa={r === 'L' || r === 'V'} color={r === 'L' ? VERDE : ROJO} borde={`${VERDE}66`} onClick={() => elegir(i, 'L')} />
               <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
                 <p className="text-[13px] font-semibold text-white/85 text-center leading-tight">{c}</p>
                 <div className="flex items-center gap-2">
-                  <span className="w-9" />
+                  <button onClick={() => editable && setCancelando({ i, motivo: canc[i]?.motivo || '' })} aria-label="Cancelar categoría"
+                    className={`w-9 h-9 rounded-full flex items-center justify-center border text-lg font-black leading-none ${cancelada ? 'bg-red-600 border-red-500 text-white' : 'border-red-500/50 text-red-400'}`}>✕</button>
                   <Luz label="Empate" activa={r === 'E'} color={AMARILLO} borde={`${AMARILLO}66`} onClick={() => elegir(i, 'E')} />
                   <button onClick={() => (venc ? mostrar(`Las planillas se borran ${CUANDO_SE_BORRAN} (está en el ZIP de la fecha)`) : hoja ? verHoja(i) : editable && examinar(i))}
                     onContextMenu={e => { e.preventDefault(); editable && examinar(i) }}
@@ -147,6 +164,9 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
                 {hoja && editable && <button onClick={() => examinar(i)} className="text-[10px] text-white/35 underline">{venc ? 'Volver a subir' : 'Cambiar hoja'}</button>}
               </div>
               <Luz label="Gana visitante" activa={r === 'V' || r === 'L'} color={r === 'V' ? VERDE : ROJO} borde={`${VERDE}66`} onClick={() => elegir(i, 'V')} />
+              {cancelada && (
+                <p className="basis-full text-center text-xs text-red-300 font-semibold">CANCELADA{canc[i]?.motivo ? `: ${canc[i].motivo}` : ''}</p>
+              )}
             </div>
           )
         })}
@@ -188,6 +208,32 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
         </div>
       )}
       {!editable && <p className="text-center text-white/50 text-sm mt-6">El partido está cerrado por la liga. Si hay un error, avisá al administrador.</p>}
+
+      {cancelando && (
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={() => setCancelando(null)}>
+          <div className="w-full max-w-md rounded-t-3xl sm:rounded-3xl border border-white/10 p-5 safe-bottom" style={{ background: '#0b1f3a' }} onClick={e => e.stopPropagation()}>
+            <p className="font-display text-2xl tracking-wide text-red-400 leading-none">Cancelar categoría</p>
+            <p className="text-sm text-white/60 mt-1">{cats[cancelando.i]} · {p.local} vs {p.visitante}</p>
+            <div className="flex flex-wrap gap-1.5 mt-4">
+              {['Disturbios', `No se presentó ${p.local}`, `No se presentó ${p.visitante}`, 'Falta de árbitro', 'Lluvia / cancha'].map(m => (
+                <button key={m} onClick={() => setCancelando(c => ({ ...c, motivo: m }))}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${cancelando.motivo === m ? 'bg-red-500 border-red-500 text-white' : 'border-white/15 text-white/70'}`}>{m}</button>
+              ))}
+            </div>
+            <textarea autoFocus value={cancelando.motivo} onChange={e => setCancelando(c => ({ ...c, motivo: e.target.value }))} rows={3} maxLength={300}
+              placeholder="Escribí el motivo (ej.: se cancela por disturbios, no presenta categoría…)"
+              className="w-full mt-3 rounded-xl px-3.5 py-3 bg-white/[0.07] border border-white/15 outline-none focus:border-red-400 text-[16px] resize-none" />
+            <div className="flex gap-2 mt-3">
+              {res[cancelando.i] === 'C'
+                ? <button onClick={() => quitarCancelacion(cancelando.i)} className="flex-1 rounded-xl py-3 bg-white/5 text-white/70 text-sm font-semibold">Quitar cancelación</button>
+                : <button onClick={() => setCancelando(null)} className="flex-1 rounded-xl py-3 bg-white/5 text-white/60 text-sm font-semibold">Volver</button>}
+              <button onClick={() => cancelando.motivo.trim() ? cancelar(cancelando.i, cancelando.motivo) : mostrar('Escribí el motivo')}
+                className="flex-1 rounded-xl py-3 bg-red-600 text-white text-sm font-bold">Cancelar categoría</button>
+            </div>
+            <p className="text-[11px] text-white/40 mt-2 text-center">Después tocá "Guardar resultados". Por ahora la categoría cancelada no suma puntos.</p>
+          </div>
+        </div>
+      )}
 
       {aviso && <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-white text-noche text-sm font-bold rounded-xl px-4 py-2 shadow-xl">{aviso}</div>}
     </div>

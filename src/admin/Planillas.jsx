@@ -53,7 +53,8 @@ export default function Planillas({ partidos }) {
             zip.file(archivo, h.data.split(',')[1], { base64: true })
             n++; setProgreso(`Planilla ${n} de ${total}…`)
           }
-          filas.push([zona + zonaV, p.local, p.visitante, cat, RES[(p.resultados || {})[i]] || '', archivo ? 'Sí' : (p.hojas?.[i] ? 'Vencida' : 'No'), p.arbitroNombre || ''])
+          const r = (p.resultados || {})[i]
+          filas.push([zona + zonaV, p.local, p.visitante, cat, r === 'C' ? `Cancelada: ${p.cancelaciones?.[i]?.motivo || ''}` : RES[r] || '', archivo ? 'Sí' : (p.hojas?.[i] ? 'Vencida' : 'No'), p.arbitroNombre || ''])
         })
       }
       // Resumen de resultados para abrir con Excel

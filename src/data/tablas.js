@@ -30,7 +30,7 @@ export function calcularTablas(partidos, clubes, zonaId, torneoId) {
     if (!lados.length) continue
     ;(p.categorias || []).forEach((cat, i) => {
       const r = res[i]
-      if (!r) return
+      if (!r || r === 'C') return // C = categoría cancelada: por ahora no suma para nadie
       for (const l of lados) {
         const resultado = r === 'E' ? 'E' : r === l.gana ? 'G' : 'P'
         porCat[cat] ??= {}

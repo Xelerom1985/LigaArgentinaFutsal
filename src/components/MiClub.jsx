@@ -18,11 +18,12 @@ export const guardarMiClub = n => { try { n ? localStorage.setItem(KEY, n) : loc
 const resultadoPara = (p, esLocal, i) => {
   const r = (p.resultados || {})[i]
   if (!r) return null
+  if (r === 'C') return 'C' // cancelada
   return r === 'E' ? 'E' : (r === 'L') === esLocal ? 'G' : 'P'
 }
-const COLOR = { G: 'bg-green-500', E: 'bg-amber-400 text-noche', P: 'bg-red-500' }
+const COLOR = { G: 'bg-green-500', E: 'bg-amber-400 text-noche', P: 'bg-red-500', C: 'bg-white/20 text-red-300' }
 const Bolita = ({ r, chica }) => (
-  <span className={`${chica ? 'w-5 h-5 text-[9px]' : 'w-7 h-7 text-xs'} rounded-full flex items-center justify-center font-black shrink-0 ${r ? COLOR[r] : 'bg-white/10 text-white/30'}`}>{r || '·'}</span>
+  <span className={`${chica ? 'w-5 h-5 text-[9px]' : 'w-7 h-7 text-xs'} rounded-full flex items-center justify-center font-black shrink-0 ${r ? COLOR[r] : 'bg-white/10 text-white/30'}`}>{r === 'C' ? '✕' : r || '·'}</span>
 )
 
 // ---- Elegir club ----
@@ -90,7 +91,7 @@ export function useDatosClub(miKey) {
         const esLocal = p.local === club.nombre && p.zonaId === z
         const esVis = p.visitante === club.nombre && (p.visitanteZonaId || p.zonaId) === z
         if (!esLocal && !esVis) return null
-        const cats = (p.categorias || []).map((c, i) => ({ cat: c, r: resultadoPara(p, esLocal, i) }))
+        const cats = (p.categorias || []).map((c, i) => ({ cat: c, i, r: resultadoPara(p, esLocal, i) }))
         const pts = cats.reduce((s, x) => s + (x.r === 'G' ? 3 : x.r === 'E' ? 1 : 0), 0)
         return {
           ...p, esLocal, cats, pts, conResultados: cats.some(x => x.r),
@@ -262,7 +263,7 @@ function TarjetaPartido({ titulo, p, club, resultados, compacta }) {
       {resultados && p.conResultados && (
         <div className="flex flex-wrap gap-x-3 gap-y-1.5 px-4 pb-3">
           {p.cats.map(x => (
-            <span key={x.cat} className="flex items-center gap-1 text-[11px] text-white/60"><Bolita r={x.r} chica />{x.cat}</span>
+            <span key={x.cat} className="flex items-center gap-1 text-[11px] text-white/60" title={x.r === 'C' ? (p.cancelaciones?.[x.i]?.motivo || 'Cancelada') : undefined}><Bolita r={x.r} chica />{x.cat}{x.r === 'C' ? ' (cancelada)' : ''}</span>
           ))}
         </div>
       )}
