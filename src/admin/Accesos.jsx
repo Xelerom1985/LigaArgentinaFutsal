@@ -19,7 +19,7 @@ export default function Accesos() {
   const crear = async () => {
     const nombre = alta.nombre.trim(), pin = alta.pin
     if (!nombre) return setMsg('Poné un nombre (por ejemplo: Liga, o el nombre de quien lo va a usar)')
-    if (!/^\d{4,12}$/.test(pin)) return setMsg('El PIN tiene que tener entre 4 y 12 números')
+    if (!/^\d{4}$/.test(pin)) return setMsg('El PIN de Admin tiene que tener 4 números')
     if (pin === PIN_ADMIN_RESERVADO || admins.some(a => a.pin === pin)) return setMsg('Ese PIN ya está usado')
     setMsg('Creando…')
     try {
@@ -32,7 +32,7 @@ export default function Accesos() {
 
   const cambiarMiPin = async () => {
     const { a, b } = nuevoPin
-    if (!/^\d{6,12}$/.test(a)) return setMsg('Tu PIN de SuperAdmin tiene que tener entre 6 y 12 números')
+    if (!/^\d{9}$/.test(a)) return setMsg('Tu PIN de SuperAdmin tiene que tener 9 números')
     if (a !== b) return setMsg('Los dos PIN no coinciden')
     if (admins.some(x => x.pin === a)) return setMsg('Ese PIN lo usa un Admin de la Liga')
     try { await cambiarPinSuper(a); setNuevoPin({ a: '', b: '' }); setCambiando(false); setMsg('Tu PIN de SuperAdmin se cambió. El anterior ya no sirve.') }
@@ -52,9 +52,9 @@ export default function Accesos() {
         <p className="text-xs text-white/50">No se muestra en ningún lado y no se puede recuperar: anotalo en un lugar seguro.</p>
         {cambiando && (
           <>
-            <input type="password" inputMode="numeric" placeholder="PIN nuevo (6 a 12 números)" value={nuevoPin.a}
+            <input type="password" inputMode="numeric" placeholder="PIN nuevo (9 números)" maxLength={9} value={nuevoPin.a}
               onChange={e => setNuevoPin({ ...nuevoPin, a: e.target.value.replace(/\D/g, '') })} className={campo} />
-            <input type="password" inputMode="numeric" placeholder="Repetí el PIN nuevo" value={nuevoPin.b}
+            <input type="password" inputMode="numeric" placeholder="Repetí el PIN nuevo" maxLength={9} value={nuevoPin.b}
               onChange={e => setNuevoPin({ ...nuevoPin, b: e.target.value.replace(/\D/g, '') })} className={campo} />
             <div className="flex gap-2">
               <button onClick={() => { setCambiando(false); setNuevoPin({ a: '', b: '' }) }} className="flex-1 rounded-xl py-2.5 bg-white/5 text-white/60 text-sm">Cancelar</button>
@@ -67,7 +67,7 @@ export default function Accesos() {
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <p className="font-display text-xl tracking-wider text-amber-300">PIN de Admin de la Liga</p>
-          {!alta && <button onClick={() => { setMsg(''); setAlta({ nombre: '', pin: azar(6) }) }} className="flex items-center gap-1 text-xs font-bold rounded-lg px-3 py-2 bg-amber-300 text-noche"><Mas className="w-4 h-4" /> Nuevo</button>}
+          {!alta && <button onClick={() => { setMsg(''); setAlta({ nombre: '', pin: azar(4) }) }} className="flex items-center gap-1 text-xs font-bold rounded-lg px-3 py-2 bg-amber-300 text-noche"><Mas className="w-4 h-4" /> Nuevo</button>}
         </div>
         <p className="text-xs text-white/50">Pueden asignar partidos y árbitros, cargar y corregir resultados, editar clubes y bajar planillas. No pueden borrar, cambiar el torneo ni ver esta pestaña.</p>
         {alta && (
@@ -75,9 +75,9 @@ export default function Accesos() {
             <input value={alta.nombre} placeholder="Nombre (ej. Liga, Juan Gómez)" onChange={e => setAlta({ ...alta, nombre: e.target.value })} className={campo} />
             <div className="flex items-center gap-2">
               <span className="text-sm text-white/60">PIN</span>
-              <input value={alta.pin} inputMode="numeric" maxLength={12} onChange={e => setAlta({ ...alta, pin: e.target.value.replace(/\D/g, '') })}
+              <input value={alta.pin} inputMode="numeric" maxLength={4} onChange={e => setAlta({ ...alta, pin: e.target.value.replace(/\D/g, '') })}
                 className={`${campo} w-36 text-center tracking-[0.2em] font-bold`} />
-              <button onClick={() => setAlta({ ...alta, pin: azar(6) })} className="text-xs text-amber-300 underline">Otro al azar</button>
+              <button onClick={() => setAlta({ ...alta, pin: azar(4) })} className="text-xs text-amber-300 underline">Otro al azar</button>
             </div>
             <p className="text-[11px] text-white/40">El PIN no se puede cambiar después: para cambiarlo, creá uno nuevo y dá de baja el viejo.</p>
             <div className="flex gap-2">
@@ -92,7 +92,7 @@ export default function Accesos() {
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm truncate">{a.nombre}</p>
               <button onClick={() => setVer(v => ({ ...v, [a.id]: !v[a.id] }))} className="text-xs text-white/50 font-mono inline-flex items-center gap-1">
-                PIN {ver[a.id] ? a.pin : '••••••'} <Ojo className="w-3.5 h-3.5" />
+                PIN {ver[a.id] ? a.pin : '••••'} <Ojo className="w-3.5 h-3.5" />
               </button>
             </div>
             <button onClick={() => activar(a, a.activo === false)} className="text-xs rounded-lg px-2.5 py-1.5 bg-white/10">{a.activo === false ? 'Habilitar' : 'Dar de baja'}</button>

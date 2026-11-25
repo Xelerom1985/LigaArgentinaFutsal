@@ -82,7 +82,7 @@
       ".write": "(auth != null && auth.token.email == 'admin@liga-argentina-futsal.app')",
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".validate": "newData.hasChildren(['nombre', 'pin']) && newData.child('pin').isString() && newData.child('pin').val().matches(/^[0-9]{4,12}$/)"
+        ".validate": "newData.hasChildren(['nombre', 'pin']) && newData.child('pin').isString() && newData.child('pin').val().matches(/^[0-9]{4}$/)"
       }
     },
     "$other": {

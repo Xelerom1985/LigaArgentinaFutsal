@@ -29,10 +29,12 @@ const arbitroClave = pin => `liga-${pin}-arbitro`
 export const entrarArbitro = pin => signInWithEmailAndPassword(auth, arbitroEmail(pin), arbitroClave(pin))
 const credencialMala = e => /invalid-credential|wrong-password|user-not-found|invalid-email/.test(e?.code || '')
 // Un solo teclado para SuperAdmin y Admin de la Liga
+// SuperAdmin: 9 números. Admin de la Liga: 4 números (el 2026 del SuperAdmin vale hasta que lo cambie).
 export async function entrarAdmin(pin) {
-  try { return await signInWithEmailAndPassword(auth, ADMIN_EMAIL, `liga-${pin}-argentina`) }
+  if (pin.length !== 4) return signInWithEmailAndPassword(auth, ADMIN_EMAIL, `liga-${pin}-argentina`)
+  try { return await signInWithEmailAndPassword(auth, adminLigaEmail(pin), adminLigaClave(pin)) }
   catch (e) { if (!credencialMala(e)) throw e }
-  return signInWithEmailAndPassword(auth, adminLigaEmail(pin), adminLigaClave(pin))
+  return signInWithEmailAndPassword(auth, ADMIN_EMAIL, `liga-${pin}-argentina`)
 }
 // SuperAdmin: cambia su propio PIN (estando logueado)
 export const cambiarPinSuper = nuevo => updatePassword(auth.currentUser, `liga-${nuevo}-argentina`)

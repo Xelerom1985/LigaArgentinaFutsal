@@ -19,7 +19,7 @@ export default function Login({ error: errorExterno, volver, tipo = 'arbitro' })
   const tecla = t => {
     if (cargando) return
     if (t === '⌫') return setPin(p => p.slice(0, -1))
-    const max = esAdmin ? 12 : 4
+    const max = esAdmin ? 9 : 4 // SuperAdmin 9 números; Admin de la Liga y árbitros 4
     if (!t || pin.length >= max) return
     const p = pin + t
     setPin(p); setError('')
