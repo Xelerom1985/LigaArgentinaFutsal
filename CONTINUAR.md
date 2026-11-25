@@ -30,6 +30,7 @@ Qué cambió:
   - Flujo: **`git pull` al empezar y `git push` al terminar cada cambio.** Hay otra sesión de Claude en la nube que trabaja sobre el mismo repo.
   - PC de casa: `C:\Users\Fernando Flores\LigaArgentinaFutsal` (remoto `github`, `main` sigue a `github/main`; launch "LigaArgentinaFutsal" en `~\.claude\launch.json`, puerto 5181).
   - Notebook: `C:\Users\fflsonct\LigaArgentinaFutsal` (ATRASADA: `git remote add github https://github.com/Xelerom1985/LigaArgentinaFutsal.git`, `git pull github main`, `git branch --set-upstream-to=github/main main`).
+  - `CONTINUAR.md` del repo es copia de este archivo (para la sesión de la nube): si se cambia uno, copiar al otro.
   - **Respaldo** en Drive (esta carpeta): copia de `src/` + `database.rules.json` + `liga-argentina-futsal.bundle` (repo completo; regenerarlo en los checkpoints con `git bundle create … --all`).
 - **No correr `npm install` dentro de Drive.**
 - Deploy: `npm run build` + `firebase deploy --only hosting` (y `--only database` si cambian las reglas).
