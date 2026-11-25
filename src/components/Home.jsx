@@ -1,8 +1,10 @@
 import { grupos } from '../data/zonas'
 import { useClubes } from '../data/clubes'
 import { Lupa, Flecha } from './Iconos'
+import { Escudo } from './ClubRow'
+import { useDatosClub } from './MiClub'
 
-export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cambiarModo, abrirTabla }) {
+export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cambiarModo, abrirTabla, miKey, abrirMiClub }) {
   const tablas = modo === 'tablas'
   const clubes = useClubes()
   const cuantos = id => clubes.filter(c => c.zonaId === id).length
@@ -14,6 +16,8 @@ export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cam
         <h1 className="font-display text-4xl tracking-wide mt-3 text-center leading-none">Liga Argentina de Futsal</h1>
         <p className="text-celeste-light/70 text-sm mt-1">La liga de los clubes de barrio</p>
       </div>
+
+      <TarjetaMiClub miKey={miKey} abrir={abrirMiClub} />
 
       {/* Ubicaciones / Tablas */}
       <div className="mt-5 w-full max-w-md grid grid-cols-2 gap-1 p-1 rounded-2xl bg-white/[0.07] border border-white/10">
@@ -59,5 +63,33 @@ export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cam
         <p className="text-white/25 text-xs text-center">Desarrollada por: Fernando Flores</p>
       </div>
     </div>
+  )
+}
+
+// Acceso a "Mi club" (o invitación a elegirlo)
+function TarjetaMiClub({ miKey, abrir }) {
+  const { porZona } = useDatosClub(miKey || '__ninguno__')
+  const d = porZona[0]
+  if (!miKey || !d) return (
+    <button onClick={abrir} className="mt-5 w-full max-w-md flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-amber-300/40 bg-amber-300/10 active:scale-[0.98] transition-transform">
+      <span className="text-2xl text-amber-300">★</span>
+      <span className="flex-1 text-left">
+        <span className="block font-bold">Elegí tu club</span>
+        <span className="block text-xs text-white/50">Tabla, estadísticas, partidos y ubicación</span>
+      </span>
+      <Flecha className="w-5 h-5 text-white/40" />
+    </button>
+  )
+  return (
+    <button onClick={abrir} className="mt-5 w-full max-w-md flex items-center gap-3 rounded-2xl px-4 py-3 border border-white/10 active:scale-[0.98] transition-transform"
+      style={{ background: 'linear-gradient(135deg, rgba(20,48,90,0.95), rgba(11,31,58,0.95))' }}>
+      <Escudo club={d.club} size="w-12 h-12" />
+      <span className="flex-1 text-left min-w-0">
+        <span className="block text-[10px] uppercase tracking-widest text-amber-300 font-bold">★ Mi club</span>
+        <span className="block font-display text-2xl leading-none tracking-wide truncate">{d.club.nombre}</span>
+        <span className="block text-xs text-white/50 truncate">{d.zona?.nombre}{d.pos ? ` · ${d.pos}° con ${d.fila.pts} pts` : ''}</span>
+      </span>
+      <Flecha className="w-5 h-5 text-white/40" />
+    </button>
   )
 }

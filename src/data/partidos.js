@@ -8,11 +8,13 @@ const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x }))
 let actual = (() => { try { return aLista(JSON.parse(localStorage.getItem(CACHE) || 'null')) } catch { return [] } })()
 const oyentes = new Set()
 let suscripto = false
+let demo = false
 
 function suscribir() {
   if (suscripto) return
   suscripto = true
   onValue(ref(db, 'partidos'), s => {
+    if (demo) return
     const v = s.val() || {}
     actual = aLista(v)
     try { localStorage.setItem(CACHE, JSON.stringify(v)) } catch {}
@@ -21,7 +23,7 @@ function suscribir() {
 }
 
 // Para la demo (solo en desarrollo)
-export function cargarDemo(lista) { actual = lista; suscripto = true; oyentes.forEach(f => f(actual)) }
+export function cargarDemo(lista) { demo = true; actual = lista; oyentes.forEach(f => f(actual)) }
 
 export function usePartidos() {
   const [lista, setLista] = useState(actual)

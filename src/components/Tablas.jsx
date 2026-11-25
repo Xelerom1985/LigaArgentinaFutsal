@@ -46,7 +46,20 @@ export default function Tablas({ zonaId, volver }) {
         <p className="font-display text-xl tracking-wider text-center mb-2" style={{ color: z.grupo.color }}>
           {cat === 'general' ? 'Tabla general · todas las categorías' : cat}
         </p>
-        <div className="rounded-2xl overflow-hidden border border-white/10 bg-white text-noche shadow-xl">
+        <TablaPosiciones filas={filas} />
+        <p className="text-white/40 text-[11px] text-center mt-3">
+          {hayDatos ? 'PJ jugados · PG ganados · PE empatados · PP perdidos · Ganado 3, empate 1, perdido 0' : 'Todavía no hay resultados cargados en esta zona.'}
+        </p>
+        {cat === 'general' && hayDatos && <p className="text-white/30 text-[11px] text-center mt-1">La general suma los puntos de todas las categorías.</p>}
+      </div>
+    </div>
+  )
+}
+
+// Tabla tipo la de la Liga en Instagram. `destacado` = nombre del club a resaltar.
+export function TablaPosiciones({ filas, destacado }) {
+  return (
+    <div className="rounded-2xl overflow-hidden border border-white/10 bg-white text-noche shadow-xl">
           <div className="grid grid-cols-[28px_1fr_30px_30px_30px_30px_40px] items-center text-[10px] font-bold uppercase text-white px-2 py-2"
             style={{ background: '#14305a' }}>
             <span className="text-center">P</span><span className="pl-1">Equipos</span>
@@ -54,7 +67,7 @@ export default function Tablas({ zonaId, volver }) {
             <span className="text-center">PTS</span>
           </div>
           {filas.map((f, i) => (
-            <div key={f.id || f.nombre} className={`grid grid-cols-[28px_1fr_30px_30px_30px_30px_40px] items-center px-2 py-2 text-xs border-t border-noche/10 ${i % 2 ? 'bg-[#eef4fb]' : 'bg-white'}`}>
+            <div key={f.id || f.nombre} className={`grid grid-cols-[28px_1fr_30px_30px_30px_30px_40px] items-center px-2 py-2 text-xs border-t border-noche/10 ${f.nombre === destacado ? 'bg-amber-200' : i % 2 ? 'bg-[#eef4fb]' : 'bg-white'}`}>
               <span className={`text-center font-black ${i === 0 && f.pts ? 'text-amber-500' : 'text-noche/60'}`}>{i + 1}</span>
               <span className="flex items-center gap-1.5 min-w-0 pl-1">
                 <Escudo club={f} size="w-6 h-6" color="#14305a" />
@@ -68,11 +81,5 @@ export default function Tablas({ zonaId, volver }) {
             </div>
           ))}
         </div>
-        <p className="text-white/40 text-[11px] text-center mt-3">
-          {hayDatos ? 'PJ jugados · PG ganados · PE empatados · PP perdidos · Ganado 3, empate 1, perdido 0' : 'Todavía no hay resultados cargados en esta zona.'}
-        </p>
-        {cat === 'general' && hayDatos && <p className="text-white/30 text-[11px] text-center mt-1">La general suma los puntos de todas las categorías.</p>}
-      </div>
-    </div>
   )
 }

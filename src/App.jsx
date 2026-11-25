@@ -5,6 +5,7 @@ import Home from './components/Home'
 import Zona from './components/Zona'
 import Buscar from './components/Buscar'
 import Tablas from './components/Tablas'
+import MiClub, { ElegirClub, leerMiClub, guardarMiClub } from './components/MiClub'
 import Instalar from './components/Instalar'
 import PinLogin from './components/PinLogin'
 import Logo from './components/Logo'
@@ -18,11 +19,11 @@ import { Candado, CandadoAbierto, Silbato, Salir } from './components/Iconos'
 import { auth, db, ref, get, onValue, query, orderByChild, equalTo, onAuthStateChanged, esAdmin, salir } from './firebase'
 
 // Navegación por hash para que el botón Atrás del celular funcione:
-// #tablas, #zona/<id>, #tabla/<id>, #buscar, #ingresar, #arbitro, #admin, #admin-clubes, #partido/<id>, #nuevo
+// #mi-club, #elegir-club, #tablas, #zona/<id>, #tabla/<id>, #buscar, #ingresar, #arbitro, #admin, #admin-clubes, #partido/<id>, #nuevo
 const leerRuta = () => {
   const h = decodeURIComponent(location.hash.slice(1))
   for (const v of ['zona', 'tabla', 'partido']) if (h.startsWith(v + '/')) return { vista: v, id: h.slice(v.length + 1) }
-  if (['tablas', 'buscar', 'ingresar', 'arbitro', 'admin', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
+  if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'arbitro', 'admin', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
   return { vista: 'home' }
 }
 const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x }))
@@ -34,6 +35,7 @@ export default function App() {
   const [errorLogin, setErrorLogin] = useState('')
   const [partidos, setPartidos] = useState([]) // los del árbitro, o todos para el admin
   const [arbitros, setArbitros] = useState([])
+  const [miKey, setMiKey] = useState(leerMiClub)
 
   // Solo en desarrollo: ?demo=admin o ?demo=arbitro muestra datos de prueba sin login
   const demo = import.meta.env.DEV && new URLSearchParams(location.search).get('demo')
@@ -98,7 +100,12 @@ export default function App() {
   let contenido
   if (v === 'home' || v === 'tablas') contenido = (
     <Home modo={v === 'tablas' ? 'tablas' : 'ubicaciones'} cambiarModo={m => location.replace('#' + (m === 'tablas' ? 'tablas' : ''))}
-      abrirZona={id => ir('zona/' + id)} abrirTabla={id => ir('tabla/' + id)} abrirBuscar={() => ir('buscar')} />
+      abrirZona={id => ir('zona/' + id)} abrirTabla={id => ir('tabla/' + id)} abrirBuscar={() => ir('buscar')}
+      miKey={miKey} abrirMiClub={() => ir(miKey ? 'mi-club' : 'elegir-club')} />
+  )
+  else if (v === 'mi-club' && miKey) contenido = <MiClub miKey={miKey} volver={volver} cambiar={() => ir('elegir-club')} abrirTabla={id => ir('tabla/' + id)} />
+  else if (v === 'mi-club' || v === 'elegir-club') contenido = (
+    <ElegirClub volver={volver} elegir={k => { guardarMiClub(k); setMiKey(k); location.replace('#mi-club') }} />
   )
   else if (v === 'zona') contenido = <Zona zonaId={ruta.id} volver={volver} />
   else if (v === 'tabla') contenido = <Tablas zonaId={ruta.id} volver={volver} />
