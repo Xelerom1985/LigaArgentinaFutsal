@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import Logo from './Logo'
-import { entrarConPin, mensajeError } from '../firebase'
+import { entrarArbitro, entrarAdmin, mensajeError } from '../firebase'
 import { Atras } from './Iconos'
 
 const TECLAS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫']
 
-export default function Login({ error: errorExterno, volver }) {
+export default function Login({ error: errorExterno, volver, tipo = 'arbitro' }) {
+  const esAdmin = tipo === 'admin'
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
@@ -13,7 +14,7 @@ export default function Login({ error: errorExterno, volver }) {
 
   const entrar = async p => {
     setCargando(true); setError('')
-    try { await entrarConPin(p) } catch (e) { setError(mensajeError(e)); setPin('') } finally { setCargando(false) }
+    try { await (esAdmin ? entrarAdmin(p) : entrarArbitro(p)) } catch (e) { setError(mensajeError(e)); setPin('') } finally { setCargando(false) }
   }
   const tecla = t => {
     if (cargando) return
@@ -30,7 +31,7 @@ export default function Login({ error: errorExterno, volver }) {
       <div className="pt-8 flex flex-col items-center float-in">
         <Logo size={170} />
         <h1 className="font-display text-4xl tracking-wide mt-2 text-center leading-none">Liga Argentina</h1>
-        <p className="font-display text-2xl tracking-[0.25em] text-amber-300 leading-none mt-1">ÁRBITROS · ADMIN</p>
+        <p className={`font-display text-2xl tracking-[0.25em] leading-none mt-1 ${esAdmin ? 'text-celeste' : 'text-amber-300'}`}>{esAdmin ? 'ADMINISTRADOR' : 'ÁRBITROS'}</p>
       </div>
 
       <p className="text-white/60 text-sm mt-7">Ingresá tu PIN</p>
@@ -49,7 +50,7 @@ export default function Login({ error: errorExterno, volver }) {
           </button>
         ) : <span key={i} />)}
       </div>
-      <p className="text-white/25 text-xs text-center mt-auto pt-8 pb-6">PIN personal e intransferible · Desarrollada por: Fernando Flores</p>
+      <p className="text-white/25 text-xs text-center mt-auto pt-8 pb-6">{esAdmin ? 'Solo para la organización de la Liga' : 'PIN personal e intransferible'} · Desarrollada por: Fernando Flores</p>
     </div>
   )
 }

@@ -16,7 +16,7 @@ function Luz({ activa, color, borde, onClick, label }) {
 }
 const VERDE = '#22c55e', AMARILLO = '#facc15', ROJO = '#ef4444'
 
-export default function Partido({ partido: p, admin, volver }) {
+export default function Partido({ partido: p, admin, arbitros = [], volver }) {
   const escudo = useEscudo()
   const [res, setRes] = useState(p.resultados || {})
   const [cambios, setCambios] = useState(false)
@@ -79,6 +79,13 @@ export default function Partido({ partido: p, admin, volver }) {
   const cerrarPartido = async v => {
     try { await update(ref(db, 'partidos/' + p.id), { estado: v ? 'cerrado' : (cats.every((_, i) => res[i]) ? 'cargado' : 'en curso') }) } catch (e) { mostrar(mensajeError(e)) }
   }
+  const asignarArbitro = async uid => {
+    const a = arbitros.find(x => x.id === uid)
+    try {
+      await update(ref(db, 'partidos/' + p.id), { arbitroUid: a ? a.id : null, arbitroNombre: a ? `${a.nombre} ${a.apellido}`.trim() : null })
+      mostrar(a ? `Asignado a ${a.nombre} ${a.apellido}` : 'Partido sin árbitro')
+    } catch (e) { mostrar(mensajeError(e)) }
+  }
   const borrar = async () => {
     if (!window.confirm(`¿Borrar ${p.local} vs ${p.visitante}? Se pierden resultados y hojas.`)) return
     try { await update(ref(db), { [`partidos/${p.id}`]: null, [`hojas/${p.id}`]: null }); volver() } catch (e) { mostrar(mensajeError(e)) }
@@ -90,7 +97,7 @@ export default function Partido({ partido: p, admin, volver }) {
         <button onClick={volver} className="w-10 h-10 -ml-2 flex items-center justify-center text-white/70"><Atras className="w-6 h-6" /></button>
         <div className="flex-1 min-w-0">
           <p className="text-[11px] uppercase tracking-widest text-amber-300/80">{fechaCorta(p.fecha)} · {nombreZonas(p)}</p>
-          {admin && <p className="text-white/50 text-xs truncate">Árbitro: {p.arbitroNombre || '—'}</p>}
+
         </div>
         {cerrado && <span className="flex items-center gap-1 text-xs bg-white/10 rounded-full px-2.5 py-1 text-white/70"><Candado className="w-3.5 h-3.5" /> Cerrado</span>}
       </div>
@@ -145,7 +152,19 @@ export default function Partido({ partido: p, admin, volver }) {
       </p>
 
       {admin && (
-        <div className="flex gap-2 mt-5">
+        <label className="flex items-center gap-2 mt-5 rounded-2xl bg-white/[0.06] border border-white/10 px-4 py-3">
+          <span className="text-sm text-white/60 shrink-0">Árbitro</span>
+          <select value={p.arbitroUid || ''} onChange={e => asignarArbitro(e.target.value)}
+            className="flex-1 min-w-0 bg-transparent text-sm font-bold text-amber-300 outline-none text-right [color-scheme:dark]">
+            <option value="">Sin asignar</option>
+            {arbitros.filter(a => a.activo !== false || a.id === p.arbitroUid)
+              .sort((a, b) => `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`, 'es'))
+              .map(a => <option key={a.id} value={a.id}>{a.apellido}, {a.nombre}</option>)}
+          </select>
+        </label>
+      )}
+      {admin && (
+        <div className="flex gap-2 mt-3">
           <button onClick={() => cerrarPartido(!cerrado)} className="flex-1 rounded-xl py-3 bg-white/[0.07] border border-white/10 text-sm font-semibold">
             {cerrado ? 'Reabrir para el árbitro' : 'Cerrar partido'}
           </button>

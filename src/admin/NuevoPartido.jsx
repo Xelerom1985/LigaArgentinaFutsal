@@ -7,7 +7,7 @@ import Escudo from '../components/Escudo'
 import { Atras, Lupa, Check } from '../components/Iconos'
 import { mensajeError } from '../firebase'
 
-// Asignar partido en pocos toques: fecha → zona → local → visitante → árbitro → Guardar
+// Asignar partido en pocos toques: fecha → zona → local → visitante → (árbitro, opcional) → Guardar
 export default function NuevoPartido({ arbitros, volver }) {
   const clubes = useClubes()
   const [sab, dom] = finDeSemana()
@@ -47,14 +47,13 @@ export default function NuevoPartido({ arbitros, volver }) {
   const arb = arbitros.find(a => a.id === arbitro)
 
   const guardar = async () => {
-    if (!arb) return setAviso('Elegí el árbitro')
     const categorias = CATEGORIAS.filter((_, i) => cats[i])
     if (!categorias.length) return setAviso('Elegí al menos una categoría')
     setGuardando(true)
     try {
       await set(push(ref(db, 'partidos')), {
         fecha, zonaId, local, visitante, visitanteZonaId: zVis, categorias,
-        arbitroUid: arb.id, arbitroNombre: `${arb.nombre} ${arb.apellido}`.trim(),
+        ...(arb ? { arbitroUid: arb.id, arbitroNombre: `${arb.nombre} ${arb.apellido}`.trim() } : {}),
         estado: 'pendiente', creado: Date.now(),
       })
       setAviso(`Asignado: ${local} vs ${visitante}`)
@@ -154,7 +153,7 @@ export default function NuevoPartido({ arbitros, volver }) {
             ))}
           </div>
 
-          <p className="font-display text-2xl tracking-wider mt-5 mb-2 text-amber-300">Árbitro</p>
+          <p className="font-display text-2xl tracking-wider mt-5 mb-2 text-amber-300">Árbitro <span className="font-sans text-xs tracking-normal text-white/40">(opcional, se puede asignar después)</span></p>
           {arb ? (
             <button onClick={() => setArbitro('')} className="w-full flex items-center justify-between rounded-2xl px-4 py-3 bg-amber-300 text-noche font-bold">
               <span>{arb.apellido}, {arb.nombre}</span><span className="text-xs">Cambiar</span>

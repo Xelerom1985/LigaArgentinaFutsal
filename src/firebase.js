@@ -17,16 +17,9 @@ const arbitroClave = pin => `liga-${pin}-arbitro`
 
 export const esAdmin = u => u?.email === ADMIN_EMAIL
 
-// Un solo teclado para todos: primero prueba como árbitro y, si no, como admin.
-export async function entrarConPin(pin) {
-  try {
-    return await signInWithEmailAndPassword(auth, arbitroEmail(pin), arbitroClave(pin))
-  } catch (e) {
-    const c = e?.code || ''
-    if (!c.includes('invalid-credential') && !c.includes('user-not-found') && !c.includes('wrong-password')) throw e
-    return await signInWithEmailAndPassword(auth, ADMIN_EMAIL, `liga-${pin}-argentina`)
-  }
-}
+// Ingresos separados: árbitros (arriba a la derecha) y administrador (arriba a la izquierda)
+export const entrarArbitro = pin => signInWithEmailAndPassword(auth, arbitroEmail(pin), arbitroClave(pin))
+export const entrarAdmin = pin => signInWithEmailAndPassword(auth, ADMIN_EMAIL, `liga-${pin}-argentina`)
 export const salir = () => signOut(auth)
 
 // Alta de la cuenta de un árbitro desde el panel admin, con una instancia

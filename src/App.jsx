@@ -23,7 +23,7 @@ import { auth, db, ref, get, onValue, query, orderByChild, equalTo, onAuthStateC
 const leerRuta = () => {
   const h = decodeURIComponent(location.hash.slice(1))
   for (const v of ['zona', 'tabla', 'partido']) if (h.startsWith(v + '/')) return { vista: v, id: h.slice(v.length + 1) }
-  if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'arbitro', 'admin', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
+  if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'admin-ingresar', 'arbitro', 'admin', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
   return { vista: 'home' }
 }
 const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x }))
@@ -88,13 +88,16 @@ export default function App() {
   const admin = sesion.rol === 'admin'
   const arbitro = sesion.rol === 'arbitro'
 
-  // Recién entró con el PIN: va a su pantalla
+  // Recién entró con el PIN: va a su panel
   useEffect(() => {
-    if (ruta.vista === 'ingresar' && sesion.usuario) location.replace('#' + (admin ? 'admin' : 'arbitro'))
-  }, [sesion.usuario, ruta.vista]) // eslint-disable-line
+    if (ruta.vista === 'ingresar' && arbitro) location.replace('#arbitro')
+    if (ruta.vista === 'admin-ingresar' && admin) location.replace('#admin')
+  }, [sesion.rol, ruta.vista]) // eslint-disable-line
 
   const v = ruta.vista
-  const necesitaLogin = ['arbitro', 'admin', 'admin-clubes', 'partido', 'nuevo'].includes(v)
+  // Panel de árbitros (solo árbitros) y panel de admin (solo admin), cada uno con su ingreso
+  const rutaArbitro = v === 'arbitro'
+  const rutaAdmin = ['admin', 'admin-clubes', 'nuevo'].includes(v)
   const partido = v === 'partido' && partidos.find(p => p.id === ruta.id)
 
   let contenido
@@ -110,14 +113,15 @@ export default function App() {
   else if (v === 'zona') contenido = <Zona zonaId={ruta.id} volver={volver} />
   else if (v === 'tabla') contenido = <Tablas zonaId={ruta.id} volver={volver} />
   else if (v === 'buscar') contenido = <Buscar volver={volver} />
-  else if (sesion.cargando && necesitaLogin) contenido = <div className="flex justify-center pt-40"><Logo size={120} /></div>
-  else if (v === 'ingresar' || (necesitaLogin && !sesion.usuario)) contenido = <PinLogin error={errorLogin} volver={() => ir('')} />
+  else if (sesion.cargando && (rutaArbitro || rutaAdmin || v === 'partido')) contenido = <div className="flex justify-center pt-40"><Logo size={120} /></div>
+  else if (v === 'admin-ingresar' || (rutaAdmin && !admin)) contenido = <PinLogin key="adm" tipo="admin" volver={() => ir('')} />
+  else if (v === 'ingresar' || (rutaArbitro && !arbitro) || (v === 'partido' && !sesion.usuario)) contenido = <PinLogin key="arb" tipo="arbitro" error={errorLogin} volver={() => ir('')} />
   else if (v === 'partido') contenido = partido
-    ? <Partido key={partido.id} partido={partido} admin={admin} volver={volver} />
+    ? <Partido key={partido.id} partido={partido} admin={admin} arbitros={arbitros} volver={volver} />
     : <p className="text-center text-white/50 pt-40">Cargando partido…</p>
   else if (v === 'nuevo' && admin) contenido = <NuevoPartido arbitros={arbitros} volver={volver} />
   else if (v === 'admin-clubes' && admin) contenido = <AdminClubes salir={volver} />
-  else if (admin) contenido = <Admin partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
+  else if (rutaAdmin) contenido = <Admin partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
   else contenido = (
     <div className="px-4 safe-top pb-16 max-w-md mx-auto">
       <div className="flex items-center gap-3 pt-3">
@@ -148,12 +152,22 @@ export default function App() {
         </div>
       )}
       {enInicio && (
-        <button onClick={() => ir(admin ? 'admin' : arbitro ? 'arbitro' : 'ingresar')}
-          className="fixed top-0 right-0 z-30 safe-top" aria-label={admin ? 'Administrador' : arbitro ? 'Mis partidos' : 'Ingresar árbitros y admin'}>
-          <span className={`m-3 h-10 px-3 rounded-full flex items-center gap-1.5 border backdrop-blur text-xs font-bold ${admin ? 'bg-celeste text-noche border-celeste' : arbitro ? 'bg-amber-300 text-noche border-amber-300' : 'bg-white/5 text-white/60 border-white/10'}`}>
-            {admin ? <><CandadoAbierto className="w-5 h-5" /> Admin</> : arbitro ? <><Silbato className="w-5 h-5" /> Mis partidos</> : <><Candado className="w-5 h-5" /> Árbitros</>}
-          </span>
-        </button>
+        <>
+          {/* Arriba a la izquierda: administrador */}
+          <button onClick={() => ir(admin ? 'admin' : 'admin-ingresar')}
+            className="fixed top-0 left-0 z-30 safe-top" aria-label="Administrador">
+            <span className={`m-3 h-10 px-3 rounded-full flex items-center gap-1.5 border backdrop-blur text-xs font-bold ${admin ? 'bg-celeste text-noche border-celeste' : 'bg-white/5 text-white/60 border-white/10'}`}>
+              {admin ? <CandadoAbierto className="w-5 h-5" /> : <Candado className="w-5 h-5" />} Admin
+            </span>
+          </button>
+          {/* Arriba a la derecha: árbitros */}
+          <button onClick={() => ir(arbitro ? 'arbitro' : 'ingresar')}
+            className="fixed top-0 right-0 z-30 safe-top" aria-label="Árbitros">
+            <span className={`m-3 h-10 px-3 rounded-full flex items-center gap-1.5 border backdrop-blur text-xs font-bold ${arbitro ? 'bg-amber-300 text-noche border-amber-300' : 'bg-white/5 text-white/60 border-white/10'}`}>
+              <Silbato className="w-5 h-5" /> {arbitro ? 'Mis partidos' : 'Árbitros'}
+            </span>
+          </button>
+        </>
       )}
       <Instalar />
     </div>
