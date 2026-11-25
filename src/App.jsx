@@ -14,6 +14,8 @@ import ListaPartidos from './components/ListaPartidos'
 import Admin from './admin/Admin'
 import AdminClubes from './admin/AdminClubes'
 import NuevoPartido from './admin/NuevoPartido'
+import Backoffice from './super/Backoffice'
+import { iniciarMetricas, contarVista, contarBajada, marcarPersonal } from './data/metricas'
 import { cargarDemo } from './data/partidos'
 import { BloqueoHuella, OpcionHuella } from './components/Huella'
 import { huellaActiva } from './data/huella'
@@ -22,10 +24,11 @@ import { auth, db, ref, get, onValue, query, orderByChild, equalTo, onAuthStateC
 
 // Navegación por hash para que el botón Atrás del celular funcione:
 // #mi-club, #elegir-club, #tablas, #zona/<id>, #tabla/<id>, #buscar, #ingresar, #arbitro, #admin, #admin-clubes, #partido/<id>, #nuevo
+// #admin para el SuperAdmin es el Backoffice; #gestion es el panel de Admin (partidos, árbitros…)
 const leerRuta = () => {
   const h = decodeURIComponent(location.hash.slice(1))
   for (const v of ['zona', 'tabla', 'partido']) if (h.startsWith(v + '/')) return { vista: v, id: h.slice(v.length + 1) }
-  if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'admin-ingresar', 'arbitro', 'admin', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
+  if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'admin-ingresar', 'arbitro', 'admin', 'gestion', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
   return { vista: 'home' }
 }
 const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x })).filter(x => !x.borrado)
@@ -50,7 +53,11 @@ export default function App() {
   // Quién entró: admin o árbitro (y que el árbitro siga activo)
   useEffect(() => demo ? undefined : onAuthStateChanged(auth, async u => {
     if (!u) return setSesion({})
-    if (esSuper(u)) return setSesion({ usuario: u, rol: 'admin', superAdmin: true })
+    if (esSuper(u)) {
+      // El celular del SuperAdmin no cuenta en las métricas de uso (se puede cambiar en el Backoffice)
+      try { if (localStorage.getItem('laf_m_staff') == null) marcarPersonal(true) } catch {}
+      return setSesion({ usuario: u, rol: 'admin', superAdmin: true })
+    }
     if (esAdminLiga(u)) {
       try {
         const s = await get(ref(db, 'admins/' + u.uid))
@@ -79,14 +86,18 @@ export default function App() {
     if (!sesion.usuario) return
     const off = []
     if (sesion.rol === 'admin') {
-      off.push(onValue(ref(db, 'partidos'), s => setPartidos(aLista(s.val())), () => {}))
-      off.push(onValue(ref(db, 'arbitros'), s => setArbitros(aLista(s.val())), () => {}))
+      off.push(onValue(ref(db, 'partidos'), s => { contarBajada(s.val()); setPartidos(aLista(s.val())) }, () => {}))
+      off.push(onValue(ref(db, 'arbitros'), s => { contarBajada(s.val()); setArbitros(aLista(s.val())) }, () => {}))
     } else {
       const q = query(ref(db, 'partidos'), orderByChild('arbitroUid'), equalTo(sesion.usuario.uid))
-      off.push(onValue(q, s => setPartidos(aLista(s.val())), () => {}))
+      off.push(onValue(q, s => { contarBajada(s.val()); setPartidos(aLista(s.val())) }, () => {}))
     }
     return () => off.forEach(f => f())
   }, [sesion.usuario, sesion.rol]) // eslint-disable-line
+
+  // Métricas anónimas de uso (para el Backoffice)
+  useEffect(() => { iniciarMetricas() }, [])
+  useEffect(() => { contarVista(ruta.vista, ruta.id, miKey) }, [ruta.vista, ruta.id]) // eslint-disable-line
 
   useEffect(() => {
     const on = () => { setRuta(leerRuta()); window.scrollTo(0, 0) }
@@ -109,7 +120,7 @@ export default function App() {
   const v = ruta.vista
   // Panel de árbitros (solo árbitros) y panel de admin (solo admin), cada uno con su ingreso
   const rutaArbitro = v === 'arbitro'
-  const rutaAdmin = ['admin', 'admin-clubes', 'nuevo'].includes(v)
+  const rutaAdmin = ['admin', 'gestion', 'admin-clubes', 'nuevo'].includes(v)
   const partido = v === 'partido' && partidos.find(p => p.id === ruta.id)
   const uid = sesion.usuario?.uid
   // Con huella activada, "salir" solo bloquea el panel (la sesión queda para entrar con huella)
@@ -143,7 +154,8 @@ export default function App() {
     : <p className="text-center text-white/50 pt-40">Cargando partido…</p>
   else if (v === 'nuevo' && admin) contenido = <NuevoPartido arbitros={arbitros} volver={volver} />
   else if (v === 'admin-clubes' && admin) contenido = <AdminClubes salir={volver} superAdmin={superAdmin} />
-  else if (rutaAdmin) contenido = <Admin salir={salirPanel} cerrarSesion={cerrarSesion} uid={uid} superAdmin={superAdmin} partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
+  else if (v === 'admin' && superAdmin) contenido = <Backoffice salir={salirPanel} cerrarSesion={cerrarSesion} uid={uid} partidos={partidos} arbitros={arbitros} abrirGestion={() => ir('gestion')} inicio={() => ir('')} demo={demo} />
+  else if (rutaAdmin) contenido = <Admin backoffice={superAdmin ? () => ir('admin') : null} salir={salirPanel} cerrarSesion={cerrarSesion} uid={uid} superAdmin={superAdmin} partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
   else contenido = (
     <div className="px-4 safe-top pb-16 max-w-md mx-auto">
       <div className="flex items-center gap-3 pt-3">

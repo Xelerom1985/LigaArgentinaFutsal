@@ -27,3 +27,34 @@ export const partidos = [
   { id: 'p3', fecha: dom, zonaId: 'copa-plata', local: 'JUNIOR FUTSAL', visitante: 'LA 50', categorias: CATEGORIAS,
     arbitroUid: 'demo2', arbitroNombre: 'Marcela Gómez', estado: 'cerrado', creado: 3 },
 ]
+
+// Métricas de prueba para el Backoffice (?demo=super)
+export function metricas() {
+  const out = {}
+  const zonas = ['elite-a', 'elite-b', 'premier-a', 'sudoeste-a1', 'copa-oro', 'sudeste-a']
+  const clubes = ['villa-urquizu', 'alvear', 'junior-futsal', '9-de-julio-lanus', 'parque-del-rey']
+  for (let i = 0; i < 40; i++) {
+    const t = Date.now() - i * 864e5
+    const dia = new Date(t - 3 * 3600e3).toISOString().slice(0, 10)
+    const finde = [0, 6].includes(new Date(t - 3 * 3600e3).getUTCDay())
+    const v = Math.round((finde ? 140 : 45) * (1 + Math.sin(i) * 0.3) * (1 + (40 - i) / 60))
+    const r = n => Math.max(0, Math.round(n * (0.6 + ((i * 7919 + n) % 10) / 12)))
+    out[dia] = {
+      gen: { visitantes: v, nuevos: r(v / 8), aperturas: r(v * 1.8) },
+      disp: { android: r(v * 0.72), iphone: r(v * 0.22), pc: r(v * 0.06) },
+      modo: { app: r(v * 0.35), web: r(v * 0.65) },
+      horas: Object.fromEntries(Array.from({ length: 24 }, (_, h) => ['h' + String(h).padStart(2, '0'), r(v * (h >= 14 && h <= 20 ? 0.18 : h < 7 ? 0.005 : 0.05))])),
+      vistas: { inicio: r(v * 1.8), tablas: r(v * 0.9), tabla: r(v * 1.4), 'mi-club': r(v * 0.8), zona: r(v * 0.5), buscar: r(v * 0.2), arbitro: r(6) },
+      tablas: Object.fromEntries(zonas.map((z, k) => [z, r(v * 0.4 / (k + 1))])),
+      zonas: Object.fromEntries(zonas.map((z, k) => [z, r(v * 0.2 / (k + 1))])),
+      miclub: Object.fromEntries(clubes.map((c, k) => [c, r(v * 0.3 / (k + 1))])),
+      acc: { 'como-llegar': r(v * 0.1), instalo: r(v / 20) },
+      kb: { base: r(v * 350), hosting: r(v * 420) },
+    }
+  }
+  return out
+}
+export function errores() {
+  const dia = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10)
+  return { [dia]: { abc: { msg: "TypeError: Cannot read properties of undefined (reading 'nombre')", n: 3 } } }
+}

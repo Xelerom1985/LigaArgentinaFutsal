@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { db, ref, onValue, get, query, orderByChild, startAt } from '../firebase'
 import { limpiarVencidas } from './limpieza'
+import { contarBajada } from './metricas'
 
 // Todos los partidos (lectura pública) para armar tablas y Mi club.
 //
@@ -19,6 +20,7 @@ let demo = false
 
 function aplicar(cambios, completo) {
   if (demo) return
+  contarBajada(cambios)
   const datos = completo ? { ...(cambios || {}) } : { ...guardado.datos, ...(cambios || {}) }
   let hasta = completo ? 0 : guardado.hasta
   for (const p of Object.values(cambios || {})) if (typeof p?.act === 'number' && p.act > hasta) hasta = p.act

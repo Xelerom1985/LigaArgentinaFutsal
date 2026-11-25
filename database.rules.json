@@ -91,6 +91,47 @@
         ".validate": "newData.hasChildren(['nombre', 'pin']) && newData.child('pin').isString() && newData.child('pin').val().matches(/^[0-9]{4}$/)"
       }
     },
+    "metricas": {
+      ".read": "(auth != null && auth.token.email == 'admin@liga-argentina-futsal.app')",
+      ".write": "(auth != null && auth.token.email == 'admin@liga-argentina-futsal.app')",
+      "d": {
+        "$dia": {
+          ".validate": "$dia.matches(/^20[0-9][0-9]-[01][0-9]-[0-3][0-9]$/)",
+          "$g": {
+            ".validate": "$g.matches(/^(gen|disp|modo|horas|vistas|zonas|tablas|miclub|acc|kb)$/)",
+            "$k": {
+              ".write": "newData.exists()",
+              ".validate": "$k.matches(/^[a-z0-9-]{1,40}$/) && newData.isNumber() && newData.val() > (data.exists() ? data.val() : 0) && newData.val() <= (data.exists() ? data.val() : 0) + 50000"
+            }
+          }
+        }
+      },
+      "e": {
+        "$dia": {
+          ".validate": "$dia.matches(/^20[0-9][0-9]-[01][0-9]-[0-3][0-9]$/)",
+          "$h": {
+            ".validate": "$h.matches(/^[a-z0-9]{1,12}$/)",
+            "n": {
+              ".write": "newData.exists()",
+              ".validate": "newData.isNumber() && newData.val() > (data.exists() ? data.val() : 0) && newData.val() <= (data.exists() ? data.val() : 0) + 20"
+            },
+            "msg": {
+              ".write": "!data.exists() && newData.exists()",
+              ".validate": "newData.isString() && newData.val().length <= 300"
+            },
+            "$otro": {
+              ".validate": false
+            }
+          }
+        }
+      },
+      "vivo": {
+        "$id": {
+          ".write": "$id.matches(/^[a-z0-9]{8,24}$/)",
+          ".validate": "newData.isNumber() && newData.val() <= now + 60000"
+        }
+      }
+    },
     "$other": {
       ".read": false,
       ".write": false

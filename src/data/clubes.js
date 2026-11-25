@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { db, ref, onValue } from '../firebase'
 import { todasLasZonas, direcciones } from './zonas'
 import { escudoDe } from './escudos'
+import { contarBajada } from './metricas'
 
 // Datos de arranque (los que venían en el código). Se suben a Firebase la
 // primera vez que entra el admin; después manda lo que hay en Firebase.
@@ -40,6 +41,7 @@ function suscribir() {
   suscripto = true
   onValue(ref(db, 'clubes'), snap => {
     const v = snap.val()
+    contarBajada(v)
     if (!v) return // base vacía: seguimos con la semilla
     actual = aLista(v)
     try { localStorage.setItem(CACHE, JSON.stringify(v)) } catch {}

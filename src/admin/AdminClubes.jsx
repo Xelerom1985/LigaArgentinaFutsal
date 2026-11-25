@@ -1,3 +1,4 @@
+import { contarBajada } from '../data/metricas'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { db, ref, get, set, update, push, remove, adminSignOut } from '../firebase'
 import { grupos, norm } from '../data/zonas'
@@ -13,6 +14,7 @@ const grupoDeZona = zonaId => grupos.find(g => g.zonas.some(z => z.id === zonaId
 // (ej. Baby y Femenino 8va, sacadas el 25/11/2026).
 async function asegurarBase() {
   const s = await get(ref(db, 'clubes'))
+  contarBajada(s.val())
   if (!s.exists()) return set(ref(db, 'clubes'), semilla())
   const viejos = {}
   for (const [id, c] of Object.entries(s.val())) if (!zonaValida(c?.zonaId)) viejos[id] = null

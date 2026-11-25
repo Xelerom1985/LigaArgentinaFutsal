@@ -1,12 +1,12 @@
 import { initializeApp, deleteApp } from 'firebase/app'
-import { getDatabase, ref, onValue, get, set, update, push, remove, query, orderByChild, equalTo, startAt, serverTimestamp } from 'firebase/database'
+import { getDatabase, ref, onValue, get, set, update, push, remove, query, orderByChild, orderByKey, equalTo, startAt, serverTimestamp, increment, onDisconnect } from 'firebase/database'
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from 'firebase/auth'
 import config from './firebaseConfig'
 
 const app = initializeApp(config)
 export const db = getDatabase(app)
 export const auth = getAuth(app)
-export { ref, onValue, get, set, update, push, remove, query, orderByChild, equalTo, startAt, serverTimestamp, onAuthStateChanged }
+export { ref, onValue, get, set, update, push, remove, query, orderByChild, orderByKey, equalTo, startAt, serverTimestamp, increment, onDisconnect, onAuthStateChanged }
 
 // Cada cambio en un partido guarda `act` (hora del servidor): así los celulares
 // bajan solo los partidos que cambiaron desde la última vez (ver data/partidos.js)

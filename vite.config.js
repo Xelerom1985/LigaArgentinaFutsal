@@ -1,10 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { readdirSync, statSync } from 'node:fs'
+import { join } from 'node:path'
+
+// Tamaño aproximado de la app completa (lo que baja el service worker la primera vez),
+// para estimar el consumo del hosting en el Backoffice: carpeta public + ~400 KB de JS/CSS (precache real 25/11: ~2,6 MB)
+const tamDir = d => readdirSync(d).reduce((t, f) => { const r = join(d, f); const s = statSync(r); return t + (s.isDirectory() ? tamDir(r) : s.size) }, 0)
+const APP_KB = Math.round(tamDir('public') / 1024) + 400
 
 export default defineConfig({
   // Rutas relativas: funciona en Firebase Hosting, GitHub Pages o cualquier subcarpeta
   base: './',
+  define: { __APP_KB__: APP_KB },
   plugins: [
     react(),
     VitePWA({

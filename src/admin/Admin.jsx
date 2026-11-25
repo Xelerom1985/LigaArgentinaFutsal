@@ -3,13 +3,12 @@ import ListaPartidos from '../components/ListaPartidos'
 import Arbitros from './Arbitros'
 import Planillas from './Planillas'
 import TorneoAdmin from './TorneoAdmin'
-import Accesos from './Accesos'
 import Logo from '../components/Logo'
 import { Mas, Salir } from '../components/Iconos'
 import { OpcionHuella } from '../components/Huella'
 
-export default function Admin({ salir, cerrarSesion, uid, superAdmin, partidos, arbitros, abrir, nuevo, abrirClubes, inicio }) {
-  const [tab, setTab] = useState(() => sessionStorage.getItem('laa_tab') || 'partidos')
+export default function Admin({ backoffice, salir, cerrarSesion, uid, superAdmin, partidos, arbitros, abrir, nuevo, abrirClubes, inicio }) {
+  const [tab, setTab] = useState(() => { const t = sessionStorage.getItem('laa_tab'); return ['partidos', 'arbitros', 'planillas', 'clubes'].includes(t) ? t : 'partidos' })
   const cambiar = t => { setTab(t); try { sessionStorage.setItem('laa_tab', t) } catch {} }
   return (
     <div className="px-4 safe-top pb-28 max-w-md mx-auto">
@@ -19,11 +18,12 @@ export default function Admin({ salir, cerrarSesion, uid, superAdmin, partidos, 
           <p className="font-display text-2xl leading-none tracking-wide">{superAdmin ? 'SuperAdmin' : 'Administrador'}</p>
           <p className="text-xs text-amber-300/80">Liga Argentina de Futsal</p>
         </div>
+        {backoffice && <button onClick={backoffice} className="h-10 px-3 rounded-full bg-amber-300 text-noche text-xs font-bold">Backoffice</button>}
         <button onClick={salir} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60" aria-label="Salir"><Salir className="w-5 h-5" /></button>
       </div>
 
-      <div className={`grid ${superAdmin ? 'grid-cols-5' : 'grid-cols-4'} gap-1 p-1 rounded-2xl bg-white/[0.06] mt-4 mb-4`}>
-        {[['partidos', 'Partidos', partidos.length], ['arbitros', 'Árbitros', arbitros.length], ['planillas', 'Planillas'], ['clubes', 'Clubes'], ...(superAdmin ? [['accesos', 'Accesos']] : [])].map(([k, l, n]) => (
+      <div className={`grid grid-cols-4 gap-1 p-1 rounded-2xl bg-white/[0.06] mt-4 mb-4`}>
+        {[['partidos', 'Partidos', partidos.length], ['arbitros', 'Árbitros', arbitros.length], ['planillas', 'Planillas'], ['clubes', 'Clubes']].map(([k, l, n]) => (
           <button key={k} onClick={() => cambiar(k)} className={`rounded-xl py-2 text-[12px] font-bold leading-tight ${tab === k ? 'bg-amber-300 text-noche' : 'text-white/60'}`}>
             {l}{n != null && <span className="block text-[10px] font-semibold opacity-70">{n}</span>}
           </button>
@@ -35,7 +35,6 @@ export default function Admin({ salir, cerrarSesion, uid, superAdmin, partidos, 
       {tab === 'partidos' && <ListaPartidos partidos={partidos} abrir={abrir} mostrarArbitro vacio="No hay partidos asignados. Tocá + para asignar el primero." />}
       {tab === 'arbitros' && <Arbitros arbitros={arbitros} partidos={partidos} superAdmin={superAdmin} />}
       {tab === 'planillas' && <Planillas partidos={partidos} />}
-      {tab === 'accesos' && superAdmin && <Accesos />}
       {tab === 'clubes' && (
         <div className="flex flex-col gap-3">
           <p className="text-white/55 text-sm">Agregar, editar o borrar clubes, escudos y ubicaciones (lo que se ve en "Clubes y ubicaciones").</p>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { db, ref, onValue, update } from '../firebase'
+import { contarBajada } from './metricas'
 
 // Torneos (Apertura, Clausura…). En la base: /config/torneoActual = id, /config/torneos/{id} = { nombre, desde }.
 // Cada partido guarda `torneo` (id). Los partidos sin torneo cuentan como el primero.
@@ -17,6 +18,7 @@ function suscribir() {
   suscripto = true
   onValue(ref(db, 'config'), s => {
     const v = s.val() || {}
+    contarBajada(v)
     estado = {
       actual: v.torneoActual || TORNEO_INICIAL,
       torneos: { ...INICIAL.torneos, ...(v.torneos || {}) },

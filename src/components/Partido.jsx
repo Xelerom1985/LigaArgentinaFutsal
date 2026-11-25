@@ -1,3 +1,4 @@
+import { contarBajada } from '../data/metricas'
 import { useEffect, useRef, useState } from 'react'
 import { db, ref, get, update, auth, mensajeError, ACT } from '../firebase'
 import { fechaCorta } from '../data/categorias'
@@ -81,7 +82,7 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
       const subido = Date.now()
       await update(ref(db), {
         [`hojas/${p.id}/${i}`]: { ...h, subido },
-        [`partidos/${p.id}/hojas/${i}`]: { nombre: h.nombre, tipo: h.tipo, subido },
+        [`partidos/${p.id}/hojas/${i}`]: { nombre: h.nombre, tipo: h.tipo, subido, tam: (h.data || '').length },
         [`partidos/${p.id}/act`]: ACT(),
       })
       mostrar('Hoja subida')
@@ -89,7 +90,7 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
   }
   const verHoja = async i => {
     try {
-      const s = await get(ref(db, `hojas/${p.id}/${i}`))
+      const s = await get(ref(db, `hojas/${p.id}/${i}`)); contarBajada(s.val())
       if (s.exists()) abrirDataUrl(s.val().data); else mostrar('No se encontró la hoja')
     } catch (e) { mostrar(mensajeError(e)) }
   }

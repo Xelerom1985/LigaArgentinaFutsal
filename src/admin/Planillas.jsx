@@ -1,3 +1,4 @@
+import { contarBajada } from '../data/metricas'
 import { useMemo, useState } from 'react'
 import { db, ref, get, mensajeError } from '../firebase'
 import { zonaPorId } from '../data/clubes'
@@ -44,6 +45,7 @@ export default function Planillas({ partidos }) {
         const vivas = Object.entries(p.hojas || {}).filter(([, h]) => !vencida(h))
         total += vivas.length
         const datos = vivas.length ? (await get(ref(db, 'hojas/' + p.id))).val() || {} : {}
+        contarBajada(datos)
         ;(p.categorias || []).forEach((cat, i) => {
           const h = datos[i]
           let archivo = ''
