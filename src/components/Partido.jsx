@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { db, ref, get, update, remove, auth, mensajeError } from '../firebase'
+import { db, ref, get, update, auth, mensajeError, ACT } from '../firebase'
 import { fechaCorta } from '../data/categorias'
 import { prepararHoja, abrirDataUrl } from '../admin/imagen'
 import { vencida, CUANDO_SE_BORRAN } from '../data/limpieza'
@@ -49,6 +49,7 @@ export default function Partido({ partido: p, admin, arbitros = [], volver }) {
         resultados: res,
         estado: cerrado ? 'cerrado' : completos ? 'cargado' : 'en curso',
         actualizado: Date.now(),
+        act: ACT(),
         actualizadoPor: auth.currentUser?.uid || '',
       })
       setCambios(false); mostrar('Resultados guardados')
@@ -66,6 +67,7 @@ export default function Partido({ partido: p, admin, arbitros = [], volver }) {
       await update(ref(db), {
         [`hojas/${p.id}/${i}`]: { ...h, subido },
         [`partidos/${p.id}/hojas/${i}`]: { nombre: h.nombre, tipo: h.tipo, subido },
+        [`partidos/${p.id}/act`]: ACT(),
       })
       mostrar('Hoja subida')
     } catch (err) { mostrar(err.message?.startsWith('El PDF') ? err.message : mensajeError(err)) } finally { setSubiendo(null) }
@@ -78,18 +80,18 @@ export default function Partido({ partido: p, admin, arbitros = [], volver }) {
   }
 
   const cerrarPartido = async v => {
-    try { await update(ref(db, 'partidos/' + p.id), { estado: v ? 'cerrado' : (cats.every((_, i) => res[i]) ? 'cargado' : 'en curso') }) } catch (e) { mostrar(mensajeError(e)) }
+    try { await update(ref(db, 'partidos/' + p.id), { estado: v ? 'cerrado' : (cats.every((_, i) => res[i]) ? 'cargado' : 'en curso'), act: ACT() }) } catch (e) { mostrar(mensajeError(e)) }
   }
   const asignarArbitro = async uid => {
     const a = arbitros.find(x => x.id === uid)
     try {
-      await update(ref(db, 'partidos/' + p.id), { arbitroUid: a ? a.id : null, arbitroNombre: a ? `${a.nombre} ${a.apellido}`.trim() : null })
+      await update(ref(db, 'partidos/' + p.id), { arbitroUid: a ? a.id : null, arbitroNombre: a ? `${a.nombre} ${a.apellido}`.trim() : null, act: ACT() })
       mostrar(a ? `Asignado a ${a.nombre} ${a.apellido}` : 'Partido sin árbitro')
     } catch (e) { mostrar(mensajeError(e)) }
   }
   const borrar = async () => {
     if (!window.confirm(`¿Borrar ${p.local} vs ${p.visitante}? Se pierden resultados y hojas.`)) return
-    try { await update(ref(db), { [`partidos/${p.id}`]: null, [`hojas/${p.id}`]: null }); volver() } catch (e) { mostrar(mensajeError(e)) }
+    try { await update(ref(db), { [`partidos/${p.id}`]: { borrado: true, act: ACT() }, [`hojas/${p.id}`]: null }); volver() } catch (e) { mostrar(mensajeError(e)) }
   }
 
   return (

@@ -20,7 +20,8 @@
       ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
       ".indexOn": [
         "arbitroUid",
-        "fecha"
+        "fecha",
+        "act"
       ],
       "$id": {
         ".read": "auth != null && data.child('arbitroUid').val() == auth.uid",
@@ -46,6 +47,10 @@
               ".write": "newData.val() == true && ((now - 291600000) - ((now - 291600000) % 604800000)) > ((data.parent().child('subido').val() - 291600000) - ((data.parent().child('subido').val() - 291600000) % 604800000))"
             }
           }
+        },
+        "act": {
+          ".write": "auth != null && data.parent().child('arbitroUid').val() == auth.uid && root.child('arbitros/' + auth.uid + '/activo').val() == true",
+          ".validate": "newData.isNumber() && newData.val() <= now"
         }
       }
     },

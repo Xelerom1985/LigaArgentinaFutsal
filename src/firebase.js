@@ -1,12 +1,16 @@
 import { initializeApp, deleteApp } from 'firebase/app'
-import { getDatabase, ref, onValue, get, set, update, push, remove, query, orderByChild, equalTo } from 'firebase/database'
+import { getDatabase, ref, onValue, get, set, update, push, remove, query, orderByChild, equalTo, startAt, serverTimestamp } from 'firebase/database'
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
 import config from './firebaseConfig'
 
 const app = initializeApp(config)
 export const db = getDatabase(app)
 export const auth = getAuth(app)
-export { ref, onValue, get, set, update, push, remove, query, orderByChild, equalTo, onAuthStateChanged }
+export { ref, onValue, get, set, update, push, remove, query, orderByChild, equalTo, startAt, serverTimestamp, onAuthStateChanged }
+
+// Cada cambio en un partido guarda `act` (hora del servidor): así los celulares
+// bajan solo los partidos que cambiaron desde la última vez (ver data/partidos.js)
+export const ACT = () => serverTimestamp()
 
 // Los PIN no se guardan en la app: con el PIN se arma la contraseña de la
 // cuenta de Firebase. Si el PIN no existe, Firebase rechaza el login.

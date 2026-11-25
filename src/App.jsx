@@ -26,7 +26,7 @@ const leerRuta = () => {
   if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'admin-ingresar', 'arbitro', 'admin', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
   return { vista: 'home' }
 }
-const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x }))
+const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x })).filter(x => !x.borrado)
 
 export default function App() {
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW()

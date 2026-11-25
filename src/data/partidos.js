@@ -1,27 +1,46 @@
 import { useEffect, useState } from 'react'
-import { db, ref, onValue } from '../firebase'
+import { db, ref, onValue, get, query, orderByChild, startAt } from '../firebase'
 import { limpiarVencidas } from './limpieza'
 
-// Todos los partidos (lectura pública) para armar las tablas. Se guardan en el
-// celular para que las tablas se vean aunque no haya señal.
-const CACHE = 'laf_partidos_v1'
-const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x }))
-let actual = (() => { try { return aLista(JSON.parse(localStorage.getItem(CACHE) || 'null')) } catch { return [] } })()
+// Todos los partidos (lectura pública) para armar tablas y Mi club.
+//
+// Para no gastar la descarga gratis de Firebase (10 GB/mes), cada celular guarda
+// los partidos y la marca `hasta` (último `act` visto). Al abrir la app pide solo
+// los partidos con `act` posterior: los nuevos, los modificados y los borrados
+// (que quedan como { borrado: true }). La primera vez se baja todo.
+const CACHE = 'laf_partidos_v2'
+const leer = () => { try { return JSON.parse(localStorage.getItem(CACHE)) || null } catch { return null } }
+let guardado = leer() || { datos: {}, hasta: 0 }
+const aLista = datos => Object.entries(datos).map(([id, x]) => ({ id, ...x })).filter(x => !x.borrado)
+let actual = aLista(guardado.datos)
 const oyentes = new Set()
 let suscripto = false
 let demo = false
 
-function suscribir() {
+function aplicar(cambios, completo) {
+  if (demo) return
+  const datos = completo ? { ...(cambios || {}) } : { ...guardado.datos, ...(cambios || {}) }
+  let hasta = completo ? 0 : guardado.hasta
+  for (const p of Object.values(cambios || {})) if (typeof p?.act === 'number' && p.act > hasta) hasta = p.act
+  guardado = { datos, hasta }
+  try { localStorage.setItem(CACHE, JSON.stringify(guardado)) } catch {}
+  actual = aLista(datos)
+  oyentes.forEach(f => f(actual))
+  limpiarVencidas(actual).catch(() => {})
+}
+
+async function suscribir() {
   if (suscripto) return
   suscripto = true
-  onValue(ref(db, 'partidos'), s => {
-    if (demo) return
-    const v = s.val() || {}
-    actual = aLista(v)
-    try { localStorage.setItem(CACHE, JSON.stringify(v)) } catch {}
-    oyentes.forEach(f => f(actual))
-    limpiarVencidas(actual).catch(() => {})
-  }, () => {})
+  try {
+    // Primera vez en este celular: se baja todo una sola vez
+    if (!guardado.hasta && !Object.keys(guardado.datos).length) {
+      const s = await get(ref(db, 'partidos'))
+      aplicar(s.val(), true)
+    }
+  } catch { /* sin conexión: seguimos con lo guardado */ }
+  // Después, en vivo, solo lo que cambió desde la última vez
+  onValue(query(ref(db, 'partidos'), orderByChild('act'), startAt(guardado.hasta + 1)), s => aplicar(s.val(), false), () => {})
 }
 
 // Para la demo (solo en desarrollo)

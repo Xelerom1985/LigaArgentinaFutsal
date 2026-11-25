@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { db, ref, push, set } from '../firebase'
+import { db, ref, push, set, ACT } from '../firebase'
 import { grupos, norm } from '../data/zonas'
 import { useClubes, zonaPorId } from '../data/clubes'
 import { CATEGORIAS, finDeSemana, fechaCorta, hoyISO } from '../data/categorias'
@@ -56,7 +56,7 @@ export default function NuevoPartido({ arbitros, volver }) {
       await set(push(ref(db, 'partidos')), {
         fecha, zonaId, local, visitante, visitanteZonaId: zVis, categorias, torneo: torneos.actual,
         ...(arb ? { arbitroUid: arb.id, arbitroNombre: `${arb.nombre} ${arb.apellido}`.trim() } : {}),
-        estado: 'pendiente', creado: Date.now(),
+        estado: 'pendiente', creado: Date.now(), act: ACT(),
       })
       setAviso(`Asignado: ${local} vs ${visitante}`)
       setLocal(''); setVisitante(''); setZonaVis('')
