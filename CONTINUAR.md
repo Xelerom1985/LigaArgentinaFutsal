@@ -1,65 +1,68 @@
-# CHECKPOINT — Liga Argentina de Futsal (PWA)
-_Última actualización: 19/11/2026_
+# CHECKPOINT — Liga Argentina de Futsal (app UNIFICADA)
+_Última actualización: 25/11/2026 (PC de casa, después del cambio de la nube)_
 
 > Para la próxima sesión de Claude: leé este archivo completo antes de hacer nada.
-> El usuario habla en español rioplatense. Quiere TODO guardado en Google Drive (`G:\Mi unidad\.claude\`),
-> nada solo local, porque alterna entre la PC del trabajo y la de casa.
+> El usuario (Fernando) habla en español rioplatense, quiere todo guardado en Drive y no le gusta que le pidan confirmación.
+> Inauguración: **febrero 2027 con el Torneo Apertura 2027**; Clausura desde mitad de año hasta fin de 2027. Hay tiempo: se siguen haciendo mejoras.
 
-## 1. Qué pidió el usuario
-- App llamada **Liga Argentina de Futsal**, tipo **La Canilla** (ubicaciones de cada club).
-- Al entrar: **primero el logo de la liga** y debajo **botones con las Zonas**.
-- Zonas y nombres de clubes sacados de https://ligaargentina2026.shop/mi-club y /tablas.
-- Que sea **PWA como La Pulga**: instalable desde el navegador.
+## 0. Zonas Baby y Femenino 8va eliminadas (25/11/2026) — APLICADO Y PUBLICADO
+**Se sacaron de la app las zonas "Baby · Cat. 2013" (Zona 1 y 2) y "Femenino · 8va" (Lanús, Zona 1, Zona 2).**
+Commit `ed5c889` (hecho desde la nube, vía GitHub). Aplicado en la PC de casa el 25/11: pull, build y deploy hechos;
+bundle regenerado, `src/` de Drive al día y escudos `baby-*`/`fem-*` borrados de Drive.
+**Falta:** que Fernando entre una vez a Admin → Clubes en la app publicada (ahí se borran de Firebase los clubes de esas zonas).
 
-## 2. Qué está hecho (funciona y está probado)
-- Stack idéntico a La Pulga: **React 18 + Vite 5 + Tailwind 3 + vite-plugin-pwa** (sin Firebase todavía).
-- **Inicio**: logo grande, buscador, 21 zonas agrupadas:
-  - Elite (A, B) · Premier (A, B, Ascenso A, Ascenso B)
-  - Diamante (Sudeste A, B1, B2 · Sudoeste A1, A2, B1, B2) · Copas (Oro, Plata)
-  - (Baby Cat. 2013 y Femenino 8va eliminadas el 25/11/2026)
-- **Zona**: lista de clubes ordenada, cada uno con botón **"Cómo llegar"** → Google Maps.
-- **Buscador** de clubes (sin acentos) que muestra en qué zonas juega cada uno.
-- Botón **"Mapa de la liga"** → el mapa de Google Earth del sitio.
-- **PWA**: manifest + service worker, banner "Instalar" (Android/Chrome), instrucciones "Agregar a inicio" (iPhone),
-  aviso "Nueva versión disponible". Navegación por hash (`#zona/elite-a`, `#buscar`) → el botón Atrás del celu funciona.
-- Colores: celeste del logo `#74a9dd` + azul noche `#0b1f3a`. Fuentes: Bebas Neue + Inter.
-- Probado en Chromium modo Pixel 7: sin errores de consola, SW registrado, sin scroll horizontal.
+Qué cambió:
+- `src/data/zonas.js`: sin los grupos `baby` y `femenino`.
+- `src/data/escudos.js`: sin los alias "Mismo club escrito distinto en Baby / Femenino".
+- `public/escudos/baby-*` y `fem-*` (9 imágenes) borradas.
+- `src/components/Home.jsx` y `src/admin/NuevoPartido.jsx`: el regex del nombre corto ya no menciona Femenino/Baby.
+- `src/data/clubes.js`: `aLista` ignora clubes cuya `zonaId` no existe (exporta `zonaValida`).
+  → Los clubes de Baby/Femenino que siguen en Firebase **no se ven** en ningún lado.
+- `src/admin/AdminClubes.jsx`: `asegurarBase()` **borra de /clubes** los clubes de zonas inexistentes
+  la primera vez que un admin abre la pestaña Clubes después del deploy. (Entrar a Admin → Clubes una vez.)
+- **NO** se tocaron las categorías "Reserva Femenino" y "1ra Femenino" (son categorías de los partidos de las zonas normales).
+- Si hay partidos de prueba en zonas baby-*/fem-* van a mostrar el id de zona; igual hay que borrar los de prueba antes de febrero.
+- Probado en navegador (modo Pixel 7): inicio sin Baby/Femenino, buscador sin esos clubes, admin sin errores.
 
-## 3. Archivos clave
-- `src/data/zonas.js` → **todas las zonas y clubes** + objeto `direcciones` (vacío) + link del mapa.
-- `src/components/` → Home, Zona, Buscar, ClubRow, Instalar, Fondo, Iconos.
-- `vite.config.js` → manifest del PWA (`base: './'`, sirve en cualquier hosting).
-- `public/logo.png` + `public/icons/*` → generados desde el logo oficial.
+## 1. Dónde está todo
+- **Producción:** https://liga-argentina-futsal.web.app (Firebase `liga-argentina-futsal`, Hosting + Realtime Database + Auth email/password).
+- **Código — FUENTE PRINCIPAL: GitHub** `https://github.com/Xelerom1985/LigaArgentinaFutsal` (privado, rama `main`).
+  - Flujo: **`git pull` al empezar y `git push` al terminar cada cambio.** Hay otra sesión de Claude en la nube que trabaja sobre el mismo repo.
+  - PC de casa: `C:\Users\Fernando Flores\LigaArgentinaFutsal` (remoto `github`, `main` sigue a `github/main`; launch "LigaArgentinaFutsal" en `~\.claude\launch.json`, puerto 5181).
+  - Notebook: `C:\Users\fflsonct\LigaArgentinaFutsal` (ATRASADA: `git remote add github https://github.com/Xelerom1985/LigaArgentinaFutsal.git`, `git pull github main`, `git branch --set-upstream-to=github/main main`).
+  - **Respaldo** en Drive (esta carpeta): copia de `src/` + `database.rules.json` + `liga-argentina-futsal.bundle` (repo completo; regenerarlo en los checkpoints con `git bundle create … --all`).
+- **No correr `npm install` dentro de Drive.**
+- Deploy: `npm run build` + `firebase deploy --only hosting` (y `--only database` si cambian las reglas).
+- Probar sin PIN (solo en dev): `?demo=super`, `?demo=admin`, `?demo=arbitro` (datos de `src/demo.js`).
+- La app vieja de árbitros (`liga-argentina-arbitros.web.app`, repo `C:\Users\Fernando Flores\LigaArgentinaArbitros`) ahora solo **redirige** a la unificada.
 
-## 4. PENDIENTE (en orden sugerido)
-1. **Direcciones de los clubes** (lo más importante, es el núcleo "tipo La Canilla").
-   - En el sitio NO están en texto. El mapa es un **proyecto privado de Google Earth**
-     (id `1-YPTC-J9rxeBx7dmcqmWHAE6ACc15AH`); no se pudo leer ni por web ni por el conector de Drive.
-   - Opciones: (a) el usuario lo exporta como **KML** desde Google Earth y se parsea;
-     (b) el usuario pasa las direcciones; (c) cargarlas a mano en `direcciones` de `zonas.js`.
-   - Mientras tanto "Cómo llegar" busca `Club <nombre> futsal` en Maps centrado en Alte. Brown (puede fallar).
-   - Idea a futuro: pantalla con mapa y todos los pines.
-2. **Publicar con HTTPS** para que se pueda instalar: Firebase Hosting (como La Pulga, pasos en README) o GitHub Pages.
-   Si se usa GitHub, crear repo (ej. `Xelerom1985/LigaArgentinaFutsal`).
-3. **Escudos**: en /mi-club están como imágenes **sin nombre**; hay que asociarlos a mano.
-   URLs tipo `https://ligaargentina2026.shop/_assets/media/<hash>.png`.
-4. Opcional: panel Admin con contraseña + Firebase para editar direcciones desde el celu (como La Pulga/La Canilla).
+## 2. Qué tiene la app
+- **Inicio:** logo, cartel "TORNEO APERTURA 2027", tarjeta **★ Mi club**, selector **Clubes y ubicaciones / Tablas de posiciones**, zonas en botones (Elite, Premier, Diamante, Copas).
+  - Arriba a la **izquierda: Admin** (SuperAdmin y Admin de la Liga). Arriba a la **derecha: Árbitros**.
+- **Clubes y ubicaciones:** zonas → clubes → "Cómo llegar" (Google Maps). Buscador.
+- **Tablas:** por zona, **General** (suma todas las categorías) + las 11 categorías siempre visibles. 3 pts ganado, 1 empate, 0 perdido, sin goles. Desempate: más PG, menos PP. Cada club suma en su zona (partidos entre zonas cuentan para los dos). Filtradas por torneo (selector si hay más de uno).
+- **Mi club:** se elige y se guarda en el celular. Pestañas Resumen, Tabla, Partidos, Ubicación.
+- **Árbitros (PIN 4 dígitos):** "Mis partidos" → semáforo por categoría, **✕ roja para cancelar una categoría con motivo**, clip para subir la planilla firmada, "Guardar resultados". Opción de **entrar con huella** después del PIN.
+- **Admin:**
+  - **SuperAdmin = Fernando**, cuenta `admin@liga-argentina-futsal.app`. PIN inicial 2026; Fernando lo cambia él mismo a uno de **9 dígitos** desde Accesos → "Cambiar mi PIN" (no guardarlo en archivos).
+  - **Admin de la Liga** = PIN de 4 dígitos, creado por el SuperAdmin en **Accesos**. Puede hacer TODO menos cambiar el torneo y ver Accesos.
+  - Pestañas: **Partidos**, **Árbitros**, **Planillas** (ZIP por fecha), **Clubes**, **Accesos** (solo SuperAdmin).
+- **Planillas firmadas:** se borran **todos los domingos a las 6:00 (hora argentina)**.
+- **Ahorro de descarga:** **cualquier escritura nueva sobre /partidos tiene que poner `act: ACT()`.** Borrar un partido = `{ borrado: true, act }`.
 
-## 5. Datos / observaciones
-- Nombres tal cual figuran en las tablas del sitio (en mayúsculas). En Elite A la tabla trae **SPINOLA**, que no tiene escudo en /mi-club.
-- Algunos clubes juegan en varias zonas (ej. BARRIO ENZ, LA PERLA CLAYPOLE); el buscador lo muestra.
-- El sitio está hecho con Canva (se renderiza con JS): para leerlo hace falta un navegador (Playwright), no curl.
-- Cada zona tiene subpágina de tabla: /web-tablas-elite, /web-tablas-elite-b, /tablas-web-premier-a, /tablas-web-premier-b,
-  /tablas-web-premier-ascenso-a, /tablas-web-premier-ascenso-b, /tablas-diamante-sudeste-a, /tablas-diamante-sudeste-b1,
-  /diamante-sudeste-b2, /diamante-sudoeste-a1, /diamante-sudoeste-a2, /diamante-sudoeste-b1, /diamante-sudoeste-b2,
-  /tablas-copa-de-oro, /tablas-copa-de-plataa, /baby-zona-a, /baby-zona-b, /femenino-zona-lanus, /femenino-zona-a, /femenino-zona-b.
-- Logo original: https://ligaargentina2026.shop/_assets/media/0141cf5de6c075749b0a87d21efc215f.png
-- Repos de referencia del usuario (GitHub Xelerom1985): **LaPulga-Fulsal** (privado, base del PWA), **LaCanilla** (sedes + Maps),
-  **LigaCentralSur** (app de liga más nueva: React 19 + Tailwind 4 + Firebase, con fixture/tablas/copas).
+## 3. Base de datos (Realtime Database)
+- `/clubes/{id}` {nombre, zonaId, escudo, ubicacion}: lectura pública.
+- `/partidos/{id}` {fecha, zonaId, visitanteZonaId, local, visitante, categorias[], resultados{i: L|E|V|C}, cancelaciones{i: {motivo}}, hojas{i: meta}, arbitroUid, arbitroNombre, estado, torneo, act, borrado}: lectura pública.
+- `/hojas/{pid}/{i}` (data URL de la planilla): privado.
+- `/arbitros/{uid}`, `/admins/{uid}`, `/config` {torneoActual, torneos}.
+- Reglas en `database.rules.json`. La misma cuenta de "semana" está en `src/data/limpieza.js`.
 
-## 6. Cómo seguir
-- **Recomendado**: sesión de Claude Code que corra **en la PC** (app Claude Desktop → Claude Code → local),
-  con carpeta `G:\Mi unidad\.claude\liga-argentina-futsal`. Así escribe directo en Drive y se sincroniza solo.
-- Para correrla: copiar la carpeta a `C:\` (o similar) y ahí `npm install` + `npm run dev`.
-  **No correr `npm install` dentro de Google Drive** (node_modules = miles de archivos, Drive se traba).
-- `liga-argentina-futsal.zip` (en la misma carpeta) tiene el proyecto con historial de git.
+## 4. Pendientes / ideas
+1. **Entrar una vez a Admin → Clubes** en la app publicada (borra de Firebase los clubes de Baby/Femenino).
+2. **Datos que hay que pedir a la Liga:** árbitros, PIN de Admin, zonas y clubes definitivos 2027, nombres oficiales unificados, direcciones de sedes, escudos, logo HD, fixture, día/hora/cancha, reglamento de puntos (W.O., suspendidos, sanciones, desempate), quién baja las planillas.
+3. **Puntos de categorías canceladas**: hoy NO suman. Definir a quién se asignan.
+4. **2026 reservado**: liberarlo para la Liga cuando Fernando confirme que su PIN de SuperAdmin ya es el de 9 dígitos (sacar `PIN_ADMIN_RESERVADO`).
+5. Probar en celular real: huella, recepción en vivo de un resultado, ZIP con planillas reales.
+6. Borrar los partidos de prueba de noviembre antes de febrero (hoy cuentan para el Apertura 2027).
+7. Escudos faltantes: Los Amigos, San José Sur, Sin Fronteras y Bouchard ya NO hacen falta (eran de Baby/Femenino). Revisar los deducidos cuando lleguen los oficiales.
+8. ~~Crear el repo de GitHub~~ HECHO 25/11 (Xelerom1985/LigaArgentinaFutsal, privado).
