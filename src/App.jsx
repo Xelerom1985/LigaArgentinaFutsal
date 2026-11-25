@@ -15,6 +15,8 @@ import Admin from './admin/Admin'
 import AdminClubes from './admin/AdminClubes'
 import NuevoPartido from './admin/NuevoPartido'
 import { cargarDemo } from './data/partidos'
+import { BloqueoHuella, OpcionHuella } from './components/Huella'
+import { huellaActiva } from './data/huella'
 import { Candado, CandadoAbierto, Silbato, Salir } from './components/Iconos'
 import { auth, db, ref, get, onValue, query, orderByChild, equalTo, onAuthStateChanged, esSuper, esAdminLiga, salir } from './firebase'
 
@@ -36,6 +38,7 @@ export default function App() {
   const [partidos, setPartidos] = useState([]) // los del árbitro, o todos para el admin
   const [arbitros, setArbitros] = useState([])
   const [miKey, setMiKey] = useState(leerMiClub)
+  const [desbloqueado, setDesbloqueado] = useState(false) // ya pasó PIN o huella en esta apertura
 
   // Solo en desarrollo: ?demo=admin o ?demo=arbitro muestra datos de prueba sin login
   const demo = import.meta.env.DEV && new URLSearchParams(location.search).get('demo')
@@ -99,8 +102,8 @@ export default function App() {
 
   // Recién entró con el PIN: va a su panel
   useEffect(() => {
-    if (ruta.vista === 'ingresar' && arbitro) location.replace('#arbitro')
-    if (ruta.vista === 'admin-ingresar' && admin) location.replace('#admin')
+    if (ruta.vista === 'ingresar' && arbitro) { setDesbloqueado(true); location.replace('#arbitro') }
+    if (ruta.vista === 'admin-ingresar' && admin) { setDesbloqueado(true); location.replace('#admin') }
   }, [sesion.rol, ruta.vista]) // eslint-disable-line
 
   const v = ruta.vista
@@ -108,6 +111,12 @@ export default function App() {
   const rutaArbitro = v === 'arbitro'
   const rutaAdmin = ['admin', 'admin-clubes', 'nuevo'].includes(v)
   const partido = v === 'partido' && partidos.find(p => p.id === ruta.id)
+  const uid = sesion.usuario?.uid
+  // Con huella activada, "salir" solo bloquea el panel (la sesión queda para entrar con huella)
+  const cerrarSesion = async () => { setDesbloqueado(false); await salir(); ir('') }
+  const salirPanel = () => { if (huellaActiva(uid)) { setDesbloqueado(false); ir('') } else cerrarSesion() }
+  const pideHuella = !demo && !desbloqueado && huellaActiva(uid) &&
+    ((rutaAdmin && admin) || (rutaArbitro && arbitro) || (v === 'partido' && sesion.usuario))
 
   let contenido
   if (v === 'home' || v === 'tablas') contenido = (
@@ -123,6 +132,10 @@ export default function App() {
   else if (v === 'tabla') contenido = <Tablas zonaId={ruta.id} volver={volver} />
   else if (v === 'buscar') contenido = <Buscar volver={volver} />
   else if (sesion.cargando && (rutaArbitro || rutaAdmin || v === 'partido')) contenido = <div className="flex justify-center pt-40"><Logo size={120} /></div>
+  else if (pideHuella) contenido = (
+    <BloqueoHuella uid={uid} titulo={admin ? (superAdmin ? 'SuperAdmin' : 'Administrador') : 'Árbitros'}
+      ok={() => setDesbloqueado(true)} usarPin={async () => { const r = admin ? 'admin-ingresar' : 'ingresar'; await salir(); location.replace('#' + r) }} volver={() => ir('')} />
+  )
   else if (v === 'admin-ingresar' || (rutaAdmin && !admin)) contenido = <PinLogin key="adm" tipo="admin" error={errorLogin} volver={() => ir('')} />
   else if (v === 'ingresar' || (rutaArbitro && !arbitro) || (v === 'partido' && !sesion.usuario)) contenido = <PinLogin key="arb" tipo="arbitro" error={errorLogin} volver={() => ir('')} />
   else if (v === 'partido') contenido = partido
@@ -130,7 +143,7 @@ export default function App() {
     : <p className="text-center text-white/50 pt-40">Cargando partido…</p>
   else if (v === 'nuevo' && admin) contenido = <NuevoPartido arbitros={arbitros} volver={volver} />
   else if (v === 'admin-clubes' && admin) contenido = <AdminClubes salir={volver} superAdmin={superAdmin} />
-  else if (rutaAdmin) contenido = <Admin superAdmin={superAdmin} partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
+  else if (rutaAdmin) contenido = <Admin salir={salirPanel} cerrarSesion={cerrarSesion} uid={uid} superAdmin={superAdmin} partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
   else contenido = (
     <div className="px-4 safe-top pb-16 max-w-md mx-auto">
       <div className="flex items-center gap-3 pt-3">
@@ -139,9 +152,10 @@ export default function App() {
           <p className="text-xs text-amber-300/80">Árbitros · Liga Argentina</p>
           <p className="font-display text-2xl leading-none tracking-wide truncate">Hola, {sesion.arbitro?.nombre || 'árbitro'}</p>
         </div>
-        <button onClick={() => { salir(); ir('') }} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60" aria-label="Salir"><Salir className="w-5 h-5" /></button>
+        <button onClick={salirPanel} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60" aria-label="Salir"><Salir className="w-5 h-5" /></button>
       </div>
-      <p className="font-display text-xl tracking-wider text-white/60 mt-5 mb-3">Mis partidos</p>
+      <div className="mt-4"><OpcionHuella uid={uid} nombre={sesion.arbitro ? `${sesion.arbitro.nombre} ${sesion.arbitro.apellido}` : 'Árbitro'} cerrarSesion={cerrarSesion} /></div>
+      <p className="font-display text-xl tracking-wider text-white/60 mt-1 mb-3">Mis partidos</p>
       <ListaPartidos partidos={partidos} abrir={id => ir('partido/' + id)} vacio="Todavía no tenés partidos asignados." />
     </div>
   )

@@ -69,7 +69,7 @@ export default function Accesos() {
           <p className="font-display text-xl tracking-wider text-amber-300">PIN de Admin de la Liga</p>
           {!alta && <button onClick={() => { setMsg(''); setAlta({ nombre: '', pin: azar(4) }) }} className="flex items-center gap-1 text-xs font-bold rounded-lg px-3 py-2 bg-amber-300 text-noche"><Mas className="w-4 h-4" /> Nuevo</button>}
         </div>
-        <p className="text-xs text-white/50">Pueden asignar partidos y árbitros, cargar y corregir resultados, editar clubes y bajar planillas. No pueden borrar, cambiar el torneo ni ver esta pestaña.</p>
+        <p className="text-xs text-white/50">Pueden hacer todo (partidos, árbitros, clubes, planillas, borrar) menos cambiar el torneo en curso y ver esta pestaña.</p>
         {alta && (
           <div className="rounded-2xl border border-amber-300/40 bg-white/[0.06] p-4 flex flex-col gap-2.5">
             <input value={alta.nombre} placeholder="Nombre (ej. Liga, Juan Gómez)" onChange={e => setAlta({ ...alta, nombre: e.target.value })} className={campo} />

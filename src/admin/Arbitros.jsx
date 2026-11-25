@@ -78,7 +78,7 @@ export default function Arbitros({ arbitros, partidos, superAdmin }) {
               </p>
             </div>
             <button onClick={() => activar(a, a.activo === false)} className="text-xs rounded-lg px-2.5 py-1.5 bg-white/10">{a.activo === false ? 'Dar de alta' : 'Dar de baja'}</button>
-            {superAdmin && <button onClick={() => borrar(a)} className="text-xs rounded-lg px-2 py-1.5 text-red-300" aria-label="Eliminar árbitro">✕</button>}
+            {<button onClick={() => borrar(a)} className="text-xs rounded-lg px-2 py-1.5 text-red-300" aria-label="Eliminar árbitro">✕</button>}
           </div>
         )
       })}

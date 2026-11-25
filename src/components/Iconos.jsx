@@ -17,3 +17,4 @@ export const Basura = (p) => <svg {...base} {...p}><path d="M3 6h18M8 6V4h8v2M19
 export const Silbato = (p) => <svg {...base} {...p}><circle cx="9" cy="14" r="5" /><path d="M13 11l8-3v4l-6 2" /><path d="M9 14h.01" /></svg>
 export const Usuario = (p) => <svg {...base} {...p}><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0116 0" /></svg>
 export const Ojo = (p) => <svg {...base} {...p}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+export const Huella = (p) => <svg {...base} {...p}><path d="M12 11c0 3.517-1.009 6.799-2.753 9.571M7.7 8.6A5 5 0 0117 11c0 1.4-.1 2.8-.3 4.1M5.3 13.4A8 8 0 016 9M18.4 18.3c.4-1.7.6-3.4.6-5.3a7 7 0 00-11.5-5.4M12 11c0 2.4-.4 4.7-1.1 6.8M15.3 17.5c-.3 1.1-.7 2.2-1.2 3.2M2 12c0-.8.1-1.6.3-2.4M21.2 8.7A10 10 0 004.1 5.5" /></svg>

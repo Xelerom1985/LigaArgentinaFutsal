@@ -142,7 +142,7 @@ function Formulario({ club, listo, cancelar, superAdmin }) {
           {guardando ? 'Guardando…' : nuevo ? 'Agregar club' : 'Guardar cambios'}
         </button>
       </div>
-      {!nuevo && superAdmin && (
+      {!nuevo && (
         <button onClick={borrar} disabled={guardando} className="rounded-xl py-3 text-red-400 text-sm font-semibold border border-red-400/30">Borrar este club</button>
       )}
     </div>

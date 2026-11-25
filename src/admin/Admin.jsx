@@ -6,9 +6,9 @@ import TorneoAdmin from './TorneoAdmin'
 import Accesos from './Accesos'
 import Logo from '../components/Logo'
 import { Mas, Salir } from '../components/Iconos'
-import { salir } from '../firebase'
+import { OpcionHuella } from '../components/Huella'
 
-export default function Admin({ superAdmin, partidos, arbitros, abrir, nuevo, abrirClubes, inicio }) {
+export default function Admin({ salir, cerrarSesion, uid, superAdmin, partidos, arbitros, abrir, nuevo, abrirClubes, inicio }) {
   const [tab, setTab] = useState(() => sessionStorage.getItem('laa_tab') || 'partidos')
   const cambiar = t => { setTab(t); try { sessionStorage.setItem('laa_tab', t) } catch {} }
   return (
@@ -30,6 +30,7 @@ export default function Admin({ superAdmin, partidos, arbitros, abrir, nuevo, ab
         ))}
       </div>
 
+      <OpcionHuella uid={uid} nombre={superAdmin ? 'SuperAdmin' : 'Administrador'} cerrarSesion={cerrarSesion} />
       {tab === 'partidos' && <TorneoAdmin partidos={partidos} superAdmin={superAdmin} />}
       {tab === 'partidos' && <ListaPartidos partidos={partidos} abrir={abrir} mostrarArbitro vacio="No hay partidos asignados. Tocá + para asignar el primero." />}
       {tab === 'arbitros' && <Arbitros arbitros={arbitros} partidos={partidos} superAdmin={superAdmin} />}

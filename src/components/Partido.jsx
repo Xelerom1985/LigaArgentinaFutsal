@@ -172,7 +172,7 @@ export default function Partido({ partido: p, admin, superAdmin, arbitros = [], 
           <button onClick={() => cerrarPartido(!cerrado)} className="flex-1 rounded-xl py-3 bg-white/[0.07] border border-white/10 text-sm font-semibold">
             {cerrado ? 'Reabrir para el árbitro' : 'Cerrar partido'}
           </button>
-          {superAdmin && <button onClick={borrar} className="rounded-xl px-4 py-3 bg-red-500/15 text-red-300 border border-red-500/30" aria-label="Borrar partido"><Basura className="w-5 h-5" /></button>}
+          {admin && <button onClick={borrar} className="rounded-xl px-4 py-3 bg-red-500/15 text-red-300 border border-red-500/30" aria-label="Borrar partido"><Basura className="w-5 h-5" /></button>}
         </div>
       )}
 
