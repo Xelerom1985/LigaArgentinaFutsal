@@ -38,12 +38,14 @@ export function calcularTablas(partidos, clubes, zonaId) {
   }
 
   const filas = mapa => ordenar(delaZona.map(c => ({ ...c, ...(mapa[c.nombre] || vacia()) })))
-  // Categorías con resultados, en el orden oficial (y las que no estén en la lista, al final)
+  // Siempre todas las categorías oficiales (en 0 si todavía no hay resultados),
+  // más alguna vieja que tenga resultados y ya no esté en la lista
   const conDatos = Object.keys(porCat)
-  const categorias = [...CATEGORIAS.filter(c => conDatos.includes(c)), ...conDatos.filter(c => !CATEGORIAS.includes(c))]
+  const categorias = [...CATEGORIAS, ...conDatos.filter(c => !CATEGORIAS.includes(c))]
   return {
     categorias,
+    hayDatos: conDatos.length > 0,
     general: filas(general),
-    porCategoria: Object.fromEntries(categorias.map(c => [c, filas(porCat[c])])),
+    porCategoria: Object.fromEntries(categorias.map(c => [c, filas(porCat[c] || {})])),
   }
 }

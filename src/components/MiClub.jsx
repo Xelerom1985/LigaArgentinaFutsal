@@ -108,6 +108,7 @@ export default function MiClub({ miKey, cambiar, volver, abrirTabla }) {
   const { porZona } = useDatosClub(miKey)
   const [zi, setZi] = useState(0)
   const [tab, setTab] = useState('resumen')
+  const [catSel, setCatSel] = useState('general')
   const d = porZona[Math.min(zi, porZona.length - 1)]
   if (!d) return (
     <div className="px-6 pt-32 text-center flex flex-col items-center gap-4">
@@ -208,9 +209,18 @@ export default function MiClub({ miKey, cambiar, volver, abrirTabla }) {
 
         {tab === 'tabla' && (
           <>
-            <p className="font-display text-xl tracking-wider text-center" style={{ color }}>{zona?.nombre} · General</p>
-            <TablaPosiciones filas={d.tabla.general} destacado={club.nombre} />
-            <button onClick={() => abrirTabla(club.zonaId)} className="rounded-xl py-3 border border-white/15 text-sm font-semibold">Ver tablas por categoría ›</button>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
+              {['general', ...d.tabla.categorias].map(c => (
+                <button key={c} onClick={e => { setCatSel(c); e.currentTarget.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }) }}
+                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold border ${catSel === c ? 'text-noche border-transparent' : 'border-white/15 text-white/70 bg-white/5'}`}
+                  style={catSel === c ? { background: color } : undefined}>{c === 'general' ? 'General' : c}</button>
+              ))}
+            </div>
+            <p className="font-display text-xl tracking-wider text-center" style={{ color }}>
+              {zona?.nombre} · {catSel === 'general' ? 'General (todas las categorías)' : catSel}
+            </p>
+            <TablaPosiciones filas={catSel === 'general' ? d.tabla.general : d.tabla.porCategoria[catSel] || d.tabla.general} destacado={club.nombre} />
+            {!d.tabla.hayDatos && <p className="text-white/40 text-[11px] text-center">Todavía no hay resultados cargados: todos en 0.</p>}
           </>
         )}
 

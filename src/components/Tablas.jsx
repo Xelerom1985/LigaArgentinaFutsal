@@ -14,7 +14,7 @@ export default function Tablas({ zonaId, volver }) {
   const [cat, setCat] = useState('general')
   if (!z) return null
   const filas = cat === 'general' ? t.general : t.porCategoria[cat] || t.general
-  const hayDatos = t.categorias.length > 0
+  const hayDatos = t.hayDatos
 
   return (
     <div className="flex flex-col">
@@ -32,7 +32,7 @@ export default function Tablas({ zonaId, volver }) {
         {/* Categorías: General + las que tienen resultados */}
         <div className="flex gap-2 overflow-x-auto px-4 pb-3 max-w-md mx-auto no-scrollbar">
           {['general', ...t.categorias].map(c => (
-            <button key={c} onClick={() => setCat(c)}
+            <button key={c} onClick={e => { setCat(c); e.currentTarget.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }) }}
               className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold border transition-colors ${cat === c ? 'text-noche border-transparent' : 'border-white/15 text-white/70 bg-white/5'}`}
               style={cat === c ? { background: z.grupo.color } : undefined}>
               {c === 'general' ? 'General' : c}
