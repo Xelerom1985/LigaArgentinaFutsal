@@ -2,22 +2,21 @@
   "rules": {
     "clubes": {
       ".read": true,
-      ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
       "$id": {
-        ".validate": "newData.hasChildren(['nombre', 'zonaId']) && newData.child('nombre').isString() && newData.child('nombre').val().length > 0 && newData.child('nombre').val().length <= 60"
+        ".validate": "newData.hasChildren(['nombre', 'zonaId']) && newData.child('nombre').isString() && newData.child('nombre').val().length > 0 && newData.child('nombre').val().length <= 60",
+        ".write": "(auth != null && (auth.token.email == 'admin@liga-argentina-futsal.app' || root.child('admins/' + auth.uid + '/activo').val() == true)) && (newData.exists() || (auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'))"
       }
     },
     "arbitros": {
-      ".read": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
-      ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
+      ".read": "(auth != null && (auth.token.email == 'admin@liga-argentina-futsal.app' || root.child('admins/' + auth.uid + '/activo').val() == true))",
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".validate": "newData.hasChildren(['nombre', 'apellido', 'pin']) && newData.child('pin').isString() && newData.child('pin').val().matches(/^[0-9]{4}$/)"
+        ".validate": "newData.hasChildren(['nombre', 'apellido', 'pin']) && newData.child('pin').isString() && newData.child('pin').val().matches(/^[0-9]{4}$/)",
+        ".write": "(auth != null && (auth.token.email == 'admin@liga-argentina-futsal.app' || root.child('admins/' + auth.uid + '/activo').val() == true)) && (newData.exists() || (auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'))"
       }
     },
     "partidos": {
       ".read": true,
-      ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
       ".indexOn": [
         "arbitroUid",
         "fecha",
@@ -51,23 +50,24 @@
         "act": {
           ".write": "auth != null && data.parent().child('arbitroUid').val() == auth.uid && root.child('arbitros/' + auth.uid + '/activo').val() == true",
           ".validate": "newData.isNumber() && newData.val() <= now"
-        }
+        },
+        ".write": "(auth != null && (auth.token.email == 'admin@liga-argentina-futsal.app' || root.child('admins/' + auth.uid + '/activo').val() == true)) && ((newData.exists() && newData.child('borrado').val() != true) || (auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'))"
       }
     },
     "hojas": {
-      ".read": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
-      ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
+      ".read": "(auth != null && (auth.token.email == 'admin@liga-argentina-futsal.app' || root.child('admins/' + auth.uid + '/activo').val() == true))",
       "$pid": {
         ".read": "auth != null && root.child('partidos/' + $pid + '/arbitroUid').val() == auth.uid",
         "$cat": {
           ".write": "(auth != null && root.child('partidos/' + $pid + '/arbitroUid').val() == auth.uid && root.child('partidos/' + $pid + '/estado').val() != 'cerrado' && root.child('arbitros/' + auth.uid + '/activo').val() == true) || (!newData.exists() && root.child('partidos/' + $pid + '/hojas/' + $cat + '/subido').val() != null && ((now - 291600000) - ((now - 291600000) % 604800000)) > ((root.child('partidos/' + $pid + '/hojas/' + $cat + '/subido').val() - 291600000) - ((root.child('partidos/' + $pid + '/hojas/' + $cat + '/subido').val() - 291600000) % 604800000)))",
           ".validate": "newData.hasChildren(['data', 'subido']) && newData.child('data').isString() && newData.child('data').val().length < 2200000"
-        }
+        },
+        ".write": "(auth != null && (auth.token.email == 'admin@liga-argentina-futsal.app' || root.child('admins/' + auth.uid + '/activo').val() == true)) && (newData.exists() || (auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'))"
       }
     },
     "config": {
       ".read": true,
-      ".write": "auth != null && auth.token.email == 'admin@liga-argentina-futsal.app'",
+      ".write": "(auth != null && auth.token.email == 'admin@liga-argentina-futsal.app')",
       "torneoActual": {
         ".validate": "newData.isString() && newData.val().length <= 60"
       },
@@ -75,6 +75,14 @@
         "$id": {
           ".validate": "newData.hasChildren(['nombre']) && newData.child('nombre').isString() && newData.child('nombre').val().length <= 60"
         }
+      }
+    },
+    "admins": {
+      ".read": "(auth != null && auth.token.email == 'admin@liga-argentina-futsal.app')",
+      ".write": "(auth != null && auth.token.email == 'admin@liga-argentina-futsal.app')",
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['nombre', 'pin']) && newData.child('pin').isString() && newData.child('pin').val().matches(/^[0-9]{4,12}$/)"
       }
     },
     "$other": {

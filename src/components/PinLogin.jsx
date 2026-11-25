@@ -19,10 +19,11 @@ export default function Login({ error: errorExterno, volver, tipo = 'arbitro' })
   const tecla = t => {
     if (cargando) return
     if (t === '⌫') return setPin(p => p.slice(0, -1))
-    if (!t || pin.length >= 4) return
+    const max = esAdmin ? 12 : 4
+    if (!t || pin.length >= max) return
     const p = pin + t
     setPin(p); setError('')
-    if (p.length === 4) entrar(p)
+    if (!esAdmin && p.length === 4) entrar(p) // árbitros: 4 números y entra solo
   }
 
   return (
@@ -36,7 +37,7 @@ export default function Login({ error: errorExterno, volver, tipo = 'arbitro' })
 
       <p className="text-white/60 text-sm mt-7">Ingresá tu PIN</p>
       <div className={`flex gap-4 mt-3 ${msg ? 'animate-[shake_.3s]' : ''}`}>
-        {[0, 1, 2, 3].map(i => (
+        {[...Array(esAdmin ? Math.max(4, pin.length) : 4).keys()].map(i => (
           <span key={i} className={`w-4 h-4 rounded-full border-2 transition-colors ${i < pin.length ? 'bg-amber-300 border-amber-300' : 'border-white/30'}`} />
         ))}
       </div>
@@ -48,6 +49,9 @@ export default function Login({ error: errorExterno, volver, tipo = 'arbitro' })
             className="h-16 rounded-2xl bg-white/[0.07] border border-white/10 text-2xl font-semibold active:bg-white/20 active:scale-95 transition">
             {t}
           </button>
+        ) : esAdmin ? (
+          <button key={i} onClick={() => pin.length >= 4 && !cargando && entrar(pin)} disabled={pin.length < 4 || cargando}
+            className="h-16 rounded-2xl bg-celeste text-noche text-base font-bold active:scale-95 transition disabled:opacity-30">Entrar</button>
         ) : <span key={i} />)}
       </div>
       <p className="text-white/25 text-xs text-center mt-auto pt-8 pb-6">{esAdmin ? 'Solo para la organización de la Liga' : 'PIN personal e intransferible'} · Desarrollada por: Fernando Flores</p>

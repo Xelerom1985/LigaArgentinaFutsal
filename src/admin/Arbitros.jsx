@@ -10,7 +10,7 @@ const pinAlAzar = usados => {
   return ''
 }
 
-export default function Arbitros({ arbitros, partidos }) {
+export default function Arbitros({ arbitros, partidos, superAdmin }) {
   const [alta, setAlta] = useState(null) // { nombre, apellido, telefono, pin }
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
@@ -78,7 +78,7 @@ export default function Arbitros({ arbitros, partidos }) {
               </p>
             </div>
             <button onClick={() => activar(a, a.activo === false)} className="text-xs rounded-lg px-2.5 py-1.5 bg-white/10">{a.activo === false ? 'Dar de alta' : 'Dar de baja'}</button>
-            <button onClick={() => borrar(a)} className="text-xs rounded-lg px-2 py-1.5 text-red-300">✕</button>
+            {superAdmin && <button onClick={() => borrar(a)} className="text-xs rounded-lg px-2 py-1.5 text-red-300" aria-label="Eliminar árbitro">✕</button>}
           </div>
         )
       })}

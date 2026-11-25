@@ -16,7 +16,7 @@ import AdminClubes from './admin/AdminClubes'
 import NuevoPartido from './admin/NuevoPartido'
 import { cargarDemo } from './data/partidos'
 import { Candado, CandadoAbierto, Silbato, Salir } from './components/Iconos'
-import { auth, db, ref, get, onValue, query, orderByChild, equalTo, onAuthStateChanged, esAdmin, salir } from './firebase'
+import { auth, db, ref, get, onValue, query, orderByChild, equalTo, onAuthStateChanged, esSuper, esAdminLiga, salir } from './firebase'
 
 // Navegación por hash para que el botón Atrás del celular funcione:
 // #mi-club, #elegir-club, #tablas, #zona/<id>, #tabla/<id>, #buscar, #ingresar, #arbitro, #admin, #admin-clubes, #partido/<id>, #nuevo
@@ -47,7 +47,15 @@ export default function App() {
   // Quién entró: admin o árbitro (y que el árbitro siga activo)
   useEffect(() => demo ? undefined : onAuthStateChanged(auth, async u => {
     if (!u) return setSesion({})
-    if (esAdmin(u)) return setSesion({ usuario: u, rol: 'admin' })
+    if (esSuper(u)) return setSesion({ usuario: u, rol: 'admin', superAdmin: true })
+    if (esAdminLiga(u)) {
+      try {
+        const s = await get(ref(db, 'admins/' + u.uid))
+        if (s.exists() && s.val().activo !== false) return setSesion({ usuario: u, rol: 'admin', superAdmin: false, admin: s.val() })
+      } catch { /* sin permiso o sin conexión */ }
+      setErrorLogin('Ese PIN de administrador ya no está habilitado.')
+      await salir(); return
+    }
     try {
       const s = await get(ref(db, 'arbitros/' + u.uid))
       if (!s.exists() || s.val().activo === false) {
@@ -86,6 +94,7 @@ export default function App() {
   const ir = h => { location.hash = h }
   const volver = () => (history.length > 1 ? history.back() : ir(''))
   const admin = sesion.rol === 'admin'
+  const superAdmin = admin && sesion.superAdmin === true
   const arbitro = sesion.rol === 'arbitro'
 
   // Recién entró con el PIN: va a su panel
@@ -114,14 +123,14 @@ export default function App() {
   else if (v === 'tabla') contenido = <Tablas zonaId={ruta.id} volver={volver} />
   else if (v === 'buscar') contenido = <Buscar volver={volver} />
   else if (sesion.cargando && (rutaArbitro || rutaAdmin || v === 'partido')) contenido = <div className="flex justify-center pt-40"><Logo size={120} /></div>
-  else if (v === 'admin-ingresar' || (rutaAdmin && !admin)) contenido = <PinLogin key="adm" tipo="admin" volver={() => ir('')} />
+  else if (v === 'admin-ingresar' || (rutaAdmin && !admin)) contenido = <PinLogin key="adm" tipo="admin" error={errorLogin} volver={() => ir('')} />
   else if (v === 'ingresar' || (rutaArbitro && !arbitro) || (v === 'partido' && !sesion.usuario)) contenido = <PinLogin key="arb" tipo="arbitro" error={errorLogin} volver={() => ir('')} />
   else if (v === 'partido') contenido = partido
-    ? <Partido key={partido.id} partido={partido} admin={admin} arbitros={arbitros} volver={volver} />
+    ? <Partido key={partido.id} partido={partido} admin={admin} superAdmin={superAdmin} arbitros={arbitros} volver={volver} />
     : <p className="text-center text-white/50 pt-40">Cargando partido…</p>
   else if (v === 'nuevo' && admin) contenido = <NuevoPartido arbitros={arbitros} volver={volver} />
-  else if (v === 'admin-clubes' && admin) contenido = <AdminClubes salir={volver} />
-  else if (rutaAdmin) contenido = <Admin partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
+  else if (v === 'admin-clubes' && admin) contenido = <AdminClubes salir={volver} superAdmin={superAdmin} />
+  else if (rutaAdmin) contenido = <Admin superAdmin={superAdmin} partidos={partidos} arbitros={arbitros} abrir={id => ir('partido/' + id)} nuevo={() => ir('nuevo')} abrirClubes={() => ir('admin-clubes')} inicio={() => ir('')} />
   else contenido = (
     <div className="px-4 safe-top pb-16 max-w-md mx-auto">
       <div className="flex items-center gap-3 pt-3">

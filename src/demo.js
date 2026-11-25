@@ -2,7 +2,9 @@
 import { CATEGORIAS, finDeSemana } from './data/categorias'
 
 const [sab, dom] = finDeSemana()
-export const sesion = rol => ({ usuario: { uid: 'demo1' }, rol, arbitro: { nombre: 'Juan', apellido: 'Pérez' } })
+export const sesion = rol => rol === 'super'
+  ? { usuario: { uid: 'super' }, rol: 'admin', superAdmin: true }
+  : { usuario: { uid: 'demo1' }, rol, arbitro: { nombre: 'Juan', apellido: 'Pérez' } }
 export const arbitros = [
   { id: 'demo1', nombre: 'Juan', apellido: 'Pérez', pin: '4821', activo: true },
   { id: 'demo2', nombre: 'Marcela', apellido: 'Gómez', pin: '1937', activo: true },

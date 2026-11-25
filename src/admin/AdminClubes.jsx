@@ -34,7 +34,7 @@ function Cabecera({ titulo, volver }) {
 const campo = 'w-full rounded-xl px-3.5 py-3 bg-white/[0.07] border border-white/10 text-[16px] outline-none focus:border-celeste placeholder:text-white/30'
 const etiqueta = 'block text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5'
 
-function Formulario({ club, listo, cancelar }) {
+function Formulario({ club, listo, cancelar, superAdmin }) {
   const nuevo = !club
   const [nombre, setNombre] = useState(club?.nombre || '')
   const [escudo, setEscudo] = useState(club?.escudo || '')
@@ -142,7 +142,7 @@ function Formulario({ club, listo, cancelar }) {
           {guardando ? 'Guardando…' : nuevo ? 'Agregar club' : 'Guardar cambios'}
         </button>
       </div>
-      {!nuevo && (
+      {!nuevo && superAdmin && (
         <button onClick={borrar} disabled={guardando} className="rounded-xl py-3 text-red-400 text-sm font-semibold border border-red-400/30">Borrar este club</button>
       )}
     </div>
@@ -186,7 +186,7 @@ function Lista({ elegir }) {
   )
 }
 
-export default function Admin({ salir }) {
+export default function Admin({ salir, superAdmin }) {
   const [vista, setVista] = useState('menu') // menu | agregar | lista | editar
   const [club, setClub] = useState(null)
   const [aviso, setAviso] = useState('')
@@ -230,7 +230,7 @@ export default function Admin({ salir }) {
       {vista === 'editar' && club && (
         <>
           <Cabecera titulo={club.nombre} volver={() => { setClub(null); setVista('lista') }} />
-          <Formulario key={club.id} club={club} listo={listo} cancelar={() => { setClub(null); setVista('lista') }} />
+          <Formulario key={club.id} club={club} superAdmin={superAdmin} listo={listo} cancelar={() => { setClub(null); setVista('lista') }} />
         </>
       )}
 

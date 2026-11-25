@@ -4,7 +4,7 @@ import { mensajeError } from '../firebase'
 import { torneoDe } from '../data/torneo'
 
 // Torneo en curso (Apertura / Clausura): los partidos nuevos se cargan en ese torneo
-export default function TorneoAdmin({ partidos }) {
+export default function TorneoAdmin({ partidos, superAdmin }) {
   const t = useTorneos()
   const [abierto, setAbierto] = useState(false)
   const [nombre, setNombre] = useState('')
@@ -24,7 +24,7 @@ export default function TorneoAdmin({ partidos }) {
           <p className="text-[10px] uppercase tracking-widest text-white/45 font-bold">Torneo en curso</p>
           <p className="font-display text-2xl leading-none tracking-wide text-amber-300 truncate">{t.nombreActual}</p>
         </div>
-        <button onClick={() => setAbierto(a => !a)} className="text-xs font-bold rounded-lg px-3 py-2 bg-white/10">{abierto ? 'Cerrar' : 'Cambiar'}</button>
+        {superAdmin && <button onClick={() => setAbierto(a => !a)} className="text-xs font-bold rounded-lg px-3 py-2 bg-white/10">{abierto ? 'Cerrar' : 'Cambiar'}</button>}
       </div>
       {abierto && (
         <div className="mt-3 flex flex-col gap-2">
