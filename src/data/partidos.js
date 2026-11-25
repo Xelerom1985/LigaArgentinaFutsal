@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { db, ref, onValue } from '../firebase'
+import { limpiarVencidas } from './limpieza'
 
 // Todos los partidos (lectura pública) para armar las tablas. Se guardan en el
 // celular para que las tablas se vean aunque no haya señal.
@@ -19,6 +20,7 @@ function suscribir() {
     actual = aLista(v)
     try { localStorage.setItem(CACHE, JSON.stringify(v)) } catch {}
     oyentes.forEach(f => f(actual))
+    limpiarVencidas(actual).catch(() => {})
   }, () => {})
 }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ListaPartidos from '../components/ListaPartidos'
 import Arbitros from './Arbitros'
+import Planillas from './Planillas'
 import Logo from '../components/Logo'
 import { Mas, Salir } from '../components/Iconos'
 import { salir } from '../firebase'
@@ -19,14 +20,17 @@ export default function Admin({ partidos, arbitros, abrir, nuevo, abrirClubes, i
         <button onClick={salir} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60" aria-label="Salir"><Salir className="w-5 h-5" /></button>
       </div>
 
-      <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-white/[0.06] mt-4 mb-4">
-        {[['partidos', `Partidos (${partidos.length})`], ['arbitros', `Árbitros (${arbitros.length})`], ['clubes', 'Clubes']].map(([k, l]) => (
-          <button key={k} onClick={() => cambiar(k)} className={`rounded-xl py-2.5 text-sm font-bold ${tab === k ? 'bg-amber-300 text-noche' : 'text-white/60'}`}>{l}</button>
+      <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-white/[0.06] mt-4 mb-4">
+        {[['partidos', 'Partidos', partidos.length], ['arbitros', 'Árbitros', arbitros.length], ['planillas', 'Planillas'], ['clubes', 'Clubes']].map(([k, l, n]) => (
+          <button key={k} onClick={() => cambiar(k)} className={`rounded-xl py-2 text-[13px] font-bold leading-tight ${tab === k ? 'bg-amber-300 text-noche' : 'text-white/60'}`}>
+            {l}{n != null && <span className="block text-[10px] font-semibold opacity-70">{n}</span>}
+          </button>
         ))}
       </div>
 
       {tab === 'partidos' && <ListaPartidos partidos={partidos} abrir={abrir} mostrarArbitro vacio="No hay partidos asignados. Tocá + para asignar el primero." />}
       {tab === 'arbitros' && <Arbitros arbitros={arbitros} partidos={partidos} />}
+      {tab === 'planillas' && <Planillas partidos={partidos} />}
       {tab === 'clubes' && (
         <div className="flex flex-col gap-3">
           <p className="text-white/55 text-sm">Agregar, editar o borrar clubes, escudos y ubicaciones (lo que se ve en "Clubes y ubicaciones").</p>

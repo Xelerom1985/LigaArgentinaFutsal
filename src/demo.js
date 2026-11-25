@@ -11,7 +11,7 @@ export const arbitros = [
 export const partidos = [
   { id: 'p1', fecha: sab, zonaId: 'elite-a', local: 'VILLA URQUIZÚ', visitante: 'PARQUE DEL REY', categorias: CATEGORIAS,
     arbitroUid: 'demo1', arbitroNombre: 'Juan Pérez', estado: 'en curso', creado: 1,
-    resultados: { 0: 'V', 1: 'V', 2: 'E', 3: 'L', 4: 'L', 5: 'L' }, hojas: { 0: { nombre: 'hoja.jpg', tipo: 'imagen', subido: 1 } } },
+    resultados: { 0: 'V', 1: 'V', 2: 'E', 3: 'L', 4: 'L', 5: 'L' }, hojas: { 0: { nombre: 'hoja.jpg', tipo: 'imagen', subido: Date.now() - 2 * 864e5 }, 1: { nombre: 'vieja.jpg', tipo: 'imagen', subido: 1, borrada: true } } },
   { id: 'p2', fecha: sab, zonaId: 'sudoeste-a1', local: '9 DE JULIO LANÚS', visitante: 'BUJÍA', categorias: CATEGORIAS.slice(0, 6),
     arbitroUid: 'demo1', arbitroNombre: 'Juan Pérez', estado: 'pendiente', creado: 2 },
   { id: 'p4', fecha: sab, zonaId: 'elite-a', visitanteZonaId: 'premier-a', local: 'ALVEAR', visitante: 'ALBERDI', categorias: CATEGORIAS,
