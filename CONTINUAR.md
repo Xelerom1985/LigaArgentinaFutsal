@@ -1,9 +1,17 @@
 # CHECKPOINT — Liga Argentina de Futsal (app UNIFICADA)
-_Última actualización: 25/11/2026 a la noche (notebook: Backoffice del SuperAdmin, commit c9acc9e, publicado)_
+_Última actualización: 27/11/2026 (PC de casa: redes, página "Cómo instalar", cartel con QR; publicado)_
 
 > Para la próxima sesión de Claude: leé este archivo completo antes de hacer nada.
 > El usuario (Fernando) habla en español rioplatense, quiere todo guardado en Drive y no le gusta que le pidan confirmación.
 > Inauguración: **febrero 2027 con el Torneo Apertura 2027**; Clausura desde mitad de año hasta fin de 2027. Hay tiempo: se siguen haciendo mejoras.
+
+## 000. Lanzamiento como PWA + instalación (27/11/2026, PC de casa) — PUBLICADO
+**Decisión (27/11): se lanza en febrero como PWA, sin tiendas.** Play Store queda para después (ideal con cuenta de ORGANIZACIÓN a nombre de la Liga: USD 25 una vez + D-U-N-S, evita la prueba cerrada de 12 personas x 14 días de las cuentas personales; empaquetar como TWA con PWABuilder + `assetlinks.json` en Firebase). App Store solo si se suman notificaciones push (si no, Apple rechaza "web envuelta"; USD 99/año + Mac o Codemagic).
+- **Inicio, abajo de todo** (arriba de "Desarrollada por"): botón **"¿Cómo instalar la app?"** (si ya está instalada dice "Compartí la app") y 3 iconos: **Facebook** (facebook.com/LigaArgentinaFutbolSala), **Instagram** (@ligaargentinadefutbolsala), **Mail** (oficial@ligaargentinadefutsal.com). Componentes `BotonInstalar` y `Redes` en `Home.jsx`.
+- **Página `#instalar`** (`src/components/ComoInstalar.jsx`): pestañas Android / iPhone (se elige sola), pasos con dibujitos que marcan dónde tocar, botón "Instalar ahora" cuando Chrome lo permite, aviso si se abrió desde Instagram/Facebook/WhatsApp (ahí no se puede instalar), QR, Compartir / Copiar link, "Bajar cartel con QR para imprimir" (PNG A4 hecho en el navegador).
+- `src/data/instalacion.js`: guarda el aviso `beforeinstallprompt` para usarlo desde el cartel de abajo y desde la página (`useInstalacion`). El cartel de iPhone (`Instalar.jsx`) tiene link "Ver cómo".
+- Dependencia nueva: **`qrcode@1.5.4`**. Backoffice cuenta la acción "compartio".
+- **Cartel para imprimir/redes** en `G:\Mi unidad\.claude\liga-argentina-futsal\cartel\`: `Cartel-QR-Liga-Futsal.pdf` (A4), `.png` (300 dpi), `(para Instagram).jpg`; fondo hecho con **Gemini** (`fondo-gemini.png`, cancha techada + pelota con destellos), logo, cinta amarilla "¡DESCARGÁ LA APP!", QR con logo al centro → `https://liga-argentina-futsal.web.app/#instalar` (verificado que se lee, también achicado). `cartel.py` lo regenera: `python cartel.py <logo.png> <qr.png> <salida.png> [fondo.png]` (Pillow, fuentes Impact y Segoe UI Bold). A Fernando le gustó ("quedó excelente").
 
 ## 00. Backoffice del SuperAdmin (25/11/2026, notebook) — PUBLICADO
 Pedido de Fernando: **el SuperAdmin es para controlar/monitorear la app (backoffice)**; partidos, fechas, árbitros, clubes y planillas son del **Admin de la Liga**.
@@ -89,3 +97,5 @@ Qué cambió:
 8. ~~Crear el repo de GitHub~~ HECHO 25/11 (Xelerom1985/LigaArgentinaFutsal, privado).
 9. Mejoras propuestas el 25/11 (Fernando todavía no eligió): hora y cancha del partido + fixture público "esta fecha", W.O./suspendido/descuentos, historial de cambios de resultados, botón "empezar el torneo de cero" (borrar partidos de prueba), compartir tabla/resultado como imagen por WhatsApp, avisos de la Liga en el inicio, push para Mi club, copia de seguridad semanal descargable.
 10. Mirar el Backoffice en unos días: que se llenen las métricas y que el consumo estimado se parezca al de la consola de Firebase (ajustar `PROTOCOLO` en Backoffice.jsx si no).
+11. Probar en un iPhone real los pasos de "Cómo instalar" (que coincidan con lo que muestra Safari).
+12. Cuando la Liga decida: Play Store como TWA (ver sección 000).
