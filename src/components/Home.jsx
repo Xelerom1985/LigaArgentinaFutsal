@@ -63,8 +63,36 @@ export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cam
           </section>
         ))}
 
+        <Redes />
         <p className="text-white/25 text-xs text-center">Desarrollada por: Fernando Flores</p>
       </div>
+    </div>
+  )
+}
+
+// Redes y mail oficiales de la Liga (abajo de todo, antes de "Desarrollada por")
+const REDES = [
+  { nombre: 'Facebook', href: 'https://www.facebook.com/LigaArgentinaFutbolSala', color: '#1877f2',
+    icono: <path d="M14 8.5V6.8c0-.8.5-1 1-1h2V2.2L14.2 2C11.1 2 10.4 4.3 10.4 5.8v2.7H8v3.7h2.4V22H14v-9.8h2.8l.4-3.7H14Z" fill="currentColor" /> },
+  { nombre: 'Instagram', href: 'https://www.instagram.com/ligaargentinadefutbolsala/', color: '#e1306c',
+    icono: <><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="2" /><circle cx="17.3" cy="6.7" r="1.2" fill="currentColor" /></> },
+  { nombre: 'Mail', href: 'mailto:oficial@ligaargentinadefutsal.com', color: '#74a9dd',
+    icono: <><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="none" stroke="currentColor" strokeWidth="2" /><path d="m3.5 6.5 8.5 6.5 8.5-6.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></> },
+]
+
+function Redes() {
+  return (
+    <div className="flex justify-center gap-5 pt-2">
+      {REDES.map(r => (
+        <a key={r.nombre} href={r.href} target={r.nombre === 'Mail' ? undefined : '_blank'} rel="noopener noreferrer"
+          aria-label={r.nombre} title={r.nombre}
+          className="flex flex-col items-center gap-1 text-white/55 active:scale-95 transition">
+          <span className="w-12 h-12 rounded-full bg-white/[0.07] border border-white/10 flex items-center justify-center" style={{ color: r.color }}>
+            <svg viewBox="0 0 24 24" className="w-6 h-6">{r.icono}</svg>
+          </span>
+          <span className="text-[10px] uppercase tracking-wider">{r.nombre}</span>
+        </a>
+      ))}
     </div>
   )
 }
