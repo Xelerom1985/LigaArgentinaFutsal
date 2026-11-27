@@ -4,8 +4,9 @@ import { Lupa, Flecha } from './Iconos'
 import { Escudo } from './ClubRow'
 import { useDatosClub } from './MiClub'
 import { useTorneos } from '../data/torneo'
+import { useInstalacion } from '../data/instalacion'
 
-export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cambiarModo, abrirTabla, miKey, abrirMiClub }) {
+export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cambiarModo, abrirTabla, miKey, abrirMiClub, abrirInstalar }) {
   const tablas = modo === 'tablas'
   const { nombreActual } = useTorneos()
   const clubes = useClubes()
@@ -63,10 +64,26 @@ export default function Home({ abrirZona, abrirBuscar, modo = 'ubicaciones', cam
           </section>
         ))}
 
+        <BotonInstalar abrir={abrirInstalar} />
         <Redes />
         <p className="text-white/25 text-xs text-center">Desarrollada por: Fernando Flores</p>
       </div>
     </div>
+  )
+}
+
+// "Cómo instalar la app" (o "Compartí la app" si ya está instalada)
+function BotonInstalar({ abrir }) {
+  const { instalada } = useInstalacion()
+  return (
+    <button onClick={abrir} className="mx-auto flex items-center gap-3 rounded-2xl border border-celeste/30 bg-celeste/[0.08] px-4 py-3 active:scale-[0.98] transition">
+      <img src="./icons/icon-192.png" alt="" className="w-9 h-9 object-contain" />
+      <span className="text-left">
+        <span className="block text-sm font-bold">{instalada ? 'Compartí la app' : '¿Cómo instalar la app?'}</span>
+        <span className="block text-[11px] text-white/50">{instalada ? 'QR y link para pasarla' : 'Android y iPhone, paso a paso'}</span>
+      </span>
+      <Flecha className="w-4 h-4 text-white/40" />
+    </button>
   )
 }
 

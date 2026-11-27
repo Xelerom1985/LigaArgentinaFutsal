@@ -7,6 +7,7 @@ import Buscar from './components/Buscar'
 import Tablas from './components/Tablas'
 import MiClub, { ElegirClub, leerMiClub, guardarMiClub } from './components/MiClub'
 import Instalar from './components/Instalar'
+import ComoInstalar from './components/ComoInstalar'
 import PinLogin from './components/PinLogin'
 import Logo from './components/Logo'
 import Partido from './components/Partido'
@@ -28,7 +29,7 @@ import { auth, db, ref, get, onValue, query, orderByChild, equalTo, onAuthStateC
 const leerRuta = () => {
   const h = decodeURIComponent(location.hash.slice(1))
   for (const v of ['zona', 'tabla', 'partido']) if (h.startsWith(v + '/')) return { vista: v, id: h.slice(v.length + 1) }
-  if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'admin-ingresar', 'arbitro', 'admin', 'gestion', 'admin-clubes', 'nuevo'].includes(h)) return { vista: h }
+  if (['mi-club', 'elegir-club', 'tablas', 'buscar', 'ingresar', 'admin-ingresar', 'arbitro', 'admin', 'gestion', 'admin-clubes', 'nuevo', 'instalar'].includes(h)) return { vista: h }
   return { vista: 'home' }
 }
 const aLista = v => Object.entries(v || {}).map(([id, x]) => ({ id, ...x })).filter(x => !x.borrado)
@@ -133,7 +134,7 @@ export default function App() {
   if (v === 'home' || v === 'tablas') contenido = (
     <Home modo={v === 'tablas' ? 'tablas' : 'ubicaciones'} cambiarModo={m => location.replace('#' + (m === 'tablas' ? 'tablas' : ''))}
       abrirZona={id => ir('zona/' + id)} abrirTabla={id => ir('tabla/' + id)} abrirBuscar={() => ir('buscar')}
-      miKey={miKey} abrirMiClub={() => ir(miKey ? 'mi-club' : 'elegir-club')} />
+      miKey={miKey} abrirMiClub={() => ir(miKey ? 'mi-club' : 'elegir-club')} abrirInstalar={() => ir('instalar')} />
   )
   else if (v === 'mi-club' && miKey) contenido = <MiClub miKey={miKey} volver={volver} cambiar={() => ir('elegir-club')} abrirTabla={id => ir('tabla/' + id)} />
   else if (v === 'mi-club' || v === 'elegir-club') contenido = (
@@ -142,6 +143,7 @@ export default function App() {
   else if (v === 'zona') contenido = <Zona zonaId={ruta.id} volver={volver} />
   else if (v === 'tabla') contenido = <Tablas zonaId={ruta.id} volver={volver} />
   else if (v === 'buscar') contenido = <Buscar volver={volver} />
+  else if (v === 'instalar') contenido = <ComoInstalar volver={volver} />
   else if (sesion.cargando && (rutaArbitro || rutaAdmin || v === 'partido')) contenido = <div className="flex justify-center pt-40"><Logo size={120} /></div>
   else if (pideHuella) contenido = (
     <BloqueoHuella uid={uid} titulo={admin ? (superAdmin ? 'SuperAdmin' : 'Administrador') : 'Árbitros'}
@@ -204,7 +206,7 @@ export default function App() {
           </button>
         </>
       )}
-      <Instalar />
+      {v !== 'instalar' && <Instalar verComo={() => ir('instalar')} />}
     </div>
   )
 }

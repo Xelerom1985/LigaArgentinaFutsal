@@ -23,7 +23,7 @@ const VISTAS = {
   'admin-ingresar': 'Ingreso admin', arbitro: 'Panel de árbitro', admin: 'Panel admin', 'admin-clubes': 'Admin · clubes',
   partido: 'Partido', nuevo: 'Asignar partido', gestion: 'Gestión (admin)',
 }
-const ACCIONES = { 'como-llegar': 'Tocaron "Cómo llegar"', instalo: 'Instalaron la app' }
+const ACCIONES = { 'como-llegar': 'Tocaron "Cómo llegar"', instalo: 'Instalaron la app', compartio: 'Compartieron la app' }
 
 const fmtN = n => Math.round(n || 0).toLocaleString('es-AR')
 const fmtB = b => b >= 1024 ** 3 ? `${(b / 1024 ** 3).toFixed(2)} GB` : b >= 1024 ** 2 ? `${(b / 1024 ** 2).toFixed(1)} MB` : `${Math.round((b || 0) / 1024)} KB`
